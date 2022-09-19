@@ -1,5 +1,3 @@
 /dataset/LVIS/data/val2017/*
 **/.DS_Store
 dataset/LVIS/data/lvis_v1_val.json
-dataset/.DS_Store
-dataset/LVIS/.DS_Store
