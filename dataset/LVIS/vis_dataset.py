@@ -9,8 +9,8 @@ import numpy as np
 
 ANNOTATION_PATH = "./data/lvis_v1_val.json"
 IMAGE_PATH = "./data/val2017"
-MY_CAT = "person"
-LVIS_CAT = ['person']
+MY_CAT = "test"
+LVIS_CAT = ['book']
 
 class vis_dataset:
 
@@ -79,7 +79,8 @@ class vis_dataset:
 
 if __name__ == '__main__':
     vis_data = vis_dataset()
-    #print(vis_data.select_img_from_cat('person'))
-    vis_data.vis_img(MY_CAT, 7816)
+    vis_data.extract_img()
+    print(vis_data.select_img_from_cat('book'))
+    #vis_data.vis_img(MY_CAT, 8691)
     #extract_img()
     pass

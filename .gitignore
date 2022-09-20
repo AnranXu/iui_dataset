@@ -1,3 +1,7 @@
 /dataset/LVIS/data/val2017/*
+/dataset/LVIS/data/train2017/*
 **/.DS_Store
 dataset/LVIS/data/lvis_v1_val.json
+dataset/LVIS/data/lvis_v1_train.json
+dataset/LVIS/selected_img
+dataset/LVIS/selected_label
