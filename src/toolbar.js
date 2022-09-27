@@ -65,10 +65,12 @@ class Toolbar extends Component{
         
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
+        <div>
         <ListGroup.Item action key={label} id={label} onClick={this.choose_label}>
             {label}
-            <AnnotationCard visibleCat={this.state.curCat} id = {label}></AnnotationCard>
         </ListGroup.Item>
+        <AnnotationCard visibleCat={this.state.curCat} id = {label}></AnnotationCard>
+        </div>
         ));
     }
     choose_label = (e)=>{
@@ -102,7 +104,7 @@ class Toolbar extends Component{
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div>
                 Label List
-                <Card style={{left: '3rem', width: '15rem' }}>
+                <Card style={{left: '3rem', width: '20rem' }}>
                     {
                         this.state.labelList.length? 
                         <ListGroup variant="flush">

@@ -1,16 +1,26 @@
 import { Component } from "react";
 import './annotation.css';
+import {Container, Row, Col, Card, Form} from 'react-bootstrap';
+import React from 'react';
 
 class AnnotationCard extends Component{
     constructor(props){
         super(props);
-        this.state = {mainStyle: {position: 'relative', display: 'none'}};
+        this.state = {mainStyle: {position: 'relative', display: 'none', 'importanceValue': '4'}};
+        this.importanceRef = React.createRef();
+        this.intensity = { '1': 'extremely unimportant',
+            '2': 'moderately unimportant',
+            '3': 'slightly unimportant',
+            '4': 'neutral',
+            '5': 'slightly important',
+            '6': 'moderately important',
+            '7': 'extremely important'
+        };
     }
     componentDidUpdate(prevProps) {
         // Typical usage (don't forget to compare props):
         if (this.props.visibleCat !== prevProps.visibleCat && this.props.visibleCat === this.props.id) {
             // show if click
-            console.log('get in: ', this.props.visibleCat);
             this.setState({mainStyle: {position: 'relative', display: 'block'}});
         }
         else if(this.props.visibleCat !== prevProps.visibleCat && this.props.visibleCat !== this.props.id){
@@ -21,7 +31,28 @@ class AnnotationCard extends Component{
     render(){
         return(
             <div style={this.state.mainStyle}>
-                {'test'}
+                <Card style={{ width: '20rem' }} border={'none'} id={this.props.id}>
+                <Card.Body>
+                    <Card.Title style={{fontSize: 'large'}}><strong>Annotation Box</strong></Card.Title>
+                    <Card.Text style={{textAlign: 'left'}}>
+                    <strong>What kind of information can this content tell?</strong>
+                    </Card.Text>
+                    <Form.Select id = {'reason-'+ this.props.id}>
+                        <option selected value='0'>Please select one option.</option>
+                        <option value='1'>It tells personal identity.</option>
+                        <option value='2'>It tells location of shooting.</option>
+                        <option value='3'>It tells personal habits.</option>
+                        <option value='4'>It tells social circle.</option>
+                    </Form.Select>
+                    <Card.Text style={{textAlign: 'left'}}>
+                    <strong>How important do you think about this privacy information?</strong>
+                    </Card.Text>
+                    <Card.Text style={{textAlign: 'center'}} ref={this.importanceRef}>
+                    <strong> {this.intensity[this.state.importanceValue]} </strong>
+                    </Card.Text>
+                    <input key = {this.props.id} type='range' max={'7'} min={'1'} step={'1'} defaultValue={'4'} onChange={(e)=>{this.setState({'importanceValue': e.target.value})}}/>
+                </Card.Body>
+                </Card>
             </div>
         );
     }

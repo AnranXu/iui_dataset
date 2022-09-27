@@ -24,11 +24,11 @@ class General extends Component{
             <div>
                 <Container>
 					<Row>
-                        <Col md={3}>
+                        <Col xs={12} md={4}>
                             <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef}/>
                             {this.state.toolData}
                         </Col>
-                        <Col md={9}>
+                        <Col xs={12} md={8}>
                             <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} bboxs = {this.state.bboxs}/>
                         </Col>
                     </Row>
