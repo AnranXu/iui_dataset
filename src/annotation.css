@@ -1,0 +1,15 @@
+.submenu{
+  position: absolute;
+  left: 100%;
+  top: -10px;
+  margin-top: 0;
+  padding: 10px 20px;
+  border-radius: 0 6px 6px 0;
+  opacity: 0;
+  display: block;
+  pointer-events: none;
+  transition: 0s;
+  padding: 6px 6px 14px 80px;
+  margin-top: -10px;
+  display: none;
+}

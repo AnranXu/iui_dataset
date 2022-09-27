@@ -136,8 +136,13 @@ class LVISVis:
         areas = boxes[:, 2] * boxes[:, 3]
         sorted_inds = np.argsort(-areas)
 
-        fig, ax = self.setup_figure(self.load_img(img_id))
-
+        im = self.load_img(img_id)
+        fig, ax = self.setup_figure(im)
+        r, g, b = cv2.split(im)
+        im = cv2.merge([b,g,r])
+        width, height = self.lvis_gt.imgs[img_id]['width'], self.lvis_gt.imgs[img_id]['height']
+        im = cv2.resize(im,(width,height))
+        cv2.imwrite('./selected_img/' + my_cat + '/' + str(img_id) + '.jpg', im)
         for idx in sorted_inds:
             if cat_ids_to_show is not None and classes[idx] not in cat_ids_to_show:
                 continue
@@ -153,7 +158,7 @@ class LVISVis:
         if if_save:
             if not os.path.exists('selected_img/' + my_cat):
                 os.mkdir('./selected_img/' + my_cat)
-            plt.savefig('./selected_img/' + my_cat + '/' + str(img_id) + '.jpg')
+            #plt.savefig('./selected_img/' + my_cat + '/' + str(img_id) + '.jpg')
         plt.close(fig)
 
 
