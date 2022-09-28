@@ -29,7 +29,7 @@ class Toolbar extends Component{
         */
         var ret = {};
         //for testing image change,
-        if(this.cnt == 0){
+        if(this.cnt === 0){
             ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/21879.jpg',
             labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/21879_label'};
             this.cnt += 1;
@@ -66,10 +66,10 @@ class Toolbar extends Component{
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
         <div>
-        <ListGroup.Item action key={label} id={label} onClick={this.choose_label}>
-            {label}
-        </ListGroup.Item>
-        <AnnotationCard visibleCat={this.state.curCat} id = {label}></AnnotationCard>
+            <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.choose_label}>
+                {label}
+            </ListGroup.Item>
+        <AnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label}></AnnotationCard>
         </div>
         ));
     }
@@ -83,7 +83,7 @@ class Toolbar extends Component{
             for(var i = 0; i < bboxs.length; i++)
             {
                 //highlight qualified bounding boxes (not finished)
-                if(bboxs[i].attrs['id'].split('-')[1] == e.target.id)
+                if(bboxs[i].attrs['id'].split('-')[1] === e.target.id)
                 {
                     bboxs[i].attrs['stroke'] = 'red';
                 }
@@ -104,7 +104,7 @@ class Toolbar extends Component{
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div>
                 Label List
-                <Card style={{left: '3rem', width: '20rem' }}>
+                <Card style={{left: '3rem', width: '20rem' }} key={'toolbarCard'}>
                     {
                         this.state.labelList.length? 
                         <ListGroup variant="flush">
