@@ -40,9 +40,7 @@ class URLImage extends React.Component {
           x={this.props.x}
           y={this.props.y}
           image={this.state.image}
-          ref={(node) => {
-            this.imageNode = node;
-          }}
+          ref={this.props.setRef}
         />
       );
     }

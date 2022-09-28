@@ -68,11 +68,9 @@ class Canvas extends Component{
       let selectorDownFunction = (e) => {
         if(!this.props.manualMode)
             return;
-        console.log('mouse down');
         // do nothing if we mousedown on any shape
         //console.log(canvas.stage.find('.canvas'));
-        //console.log(e.target);
-        if (e.target !== this.stageRef.current) {
+        if (e.target !== this.imageRef.current) {
           return;
         }
         x1 = this.stageRef.current.getPointerPosition().x;
@@ -83,6 +81,7 @@ class Canvas extends Component{
         this.virtualRectRef.current.visible(true);
         this.virtualRectRef.current.width(0);
         this.virtualRectRef.current.height(0);
+        
       }
 
       let selectorMoveFunction = (e) => {
@@ -92,7 +91,6 @@ class Canvas extends Component{
         if (!this.virtualRectRef.current.visible()) {
           return;
         }
-        console.log('mouse move');
         x2 = this.stageRef.current.getPointerPosition().x;
         y2 = this.stageRef.current.getPointerPosition().y;
 
@@ -126,7 +124,7 @@ class Canvas extends Component{
             <div>
                 <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
                     <Layer>
-                        <URLImage src={this.props.imageURL} ref={this.imageRef}></URLImage>
+                        <URLImage src={this.props.imageURL} setRef={this.imageRef}></URLImage>
                         {/*Add A virtual rectangle for creating bounding box */}
                         <Rect fill={'rgba(0,50,180,0.5)'} stroke = {'blue'} visible={false} key={'virtualRect'} ref={this.virtualRectRef}></Rect>
                         {/*This function maintains bounding boxes*/}
