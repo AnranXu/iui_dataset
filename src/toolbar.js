@@ -10,7 +10,8 @@ class Toolbar extends Component{
 	constructor(props)
 	{
         super(props);
-        this.state = {'callbackData': 'sent', bboxs: [], labelList: [], curCat: ''};
+        this.state = {'callbackData': 'sent', bboxs: [], labelList: [], 
+        curCat: '', 'manualModeText': 'Create Bounding Box'};
         this.cnt = 0;
     }
     sendData = () =>{
@@ -21,7 +22,7 @@ class Toolbar extends Component{
         var s3 = new s3_handler();
         s3.s3_test();
     }
-    load_data = () =>{
+    loadData = () =>{
         /*Maintaining the list of bounding boxes from original dataset and annotators
         The url links to the file that contains all the existing bounding boxes 
         Each line of the file is one annotation
@@ -61,19 +62,19 @@ class Toolbar extends Component{
             console.error('Error:', error);
         });
     }
-    create_label_list = () => {
+    createLabelList = () => {
         
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
         <div>
-            <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.choose_label}>
+            <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
                 {label}
             </ListGroup.Item>
         <AnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label}></AnnotationCard>
         </div>
         ));
     }
-    choose_label = (e)=>{
+    chooseLabel = (e)=>{
         //if stageRef is not null, choose bboxs by pairing label and id of bbox
         //bbox'id: 'bbox' + String(i) + '-' + String(bbox['category'])
         //e.target.key is the category
@@ -95,12 +96,27 @@ class Toolbar extends Component{
             this.setState({curCat: e.target.id});
         }
     }
+    manualAnn = () => {
+        
+        if(this.props.manualMode === false)
+        {
+            this.setState({'manualModeText': 'Stop Creating Bounding Box'});
+            this.props.toolCallback({'manualMode': true});
+        }   
+        else
+        {
+            this.setState({'manualModeText': 'Create Bounding Box'});
+            this.props.toolCallback({'manualMode': false});
+        }
+            
+    }
     render(){
         return (
             <div>
                 <button onClick = {() => this.sendData()}>Test sending URL</button>
-                <button onClick = {this.fetchImage}>Test S3</button>
-                <button onClick = {(e)=>{this.load_data()}}>Test Loading</button>
+                <button onClick = {() => this.fetchImage()}>Test S3</button>
+                <button onClick = {() => this.loadData()}>Test Loading</button>
+                <button onClick=  {() => this.manualAnn()}>{this.state.manualModeText}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div>
                 Label List
@@ -108,7 +124,7 @@ class Toolbar extends Component{
                     {
                         this.state.labelList.length? 
                         <ListGroup variant="flush">
-                        {this.create_label_list()}
+                        {this.createLabelList()}
                         </ListGroup>
                         :
                         <div></div>

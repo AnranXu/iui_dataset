@@ -12,11 +12,12 @@ class General extends Component{
             toolData: 'unsend',
             imageURL: '',
             bboxs: [],
-            stageRef: null
+            stageRef: null,
+            manualMode: false
         }
     }
     toolCallback = (childData) =>{
-        //console.log(childData);
+        console.log(childData);
         this.setState(childData);
     }
     render(){
@@ -25,11 +26,11 @@ class General extends Component{
                 <Container>
 					<Row>
                         <Col xs={12} md={4}>
-                            <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef}/>
+                            <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} manualMode={this.state.manualMode}/>
                             {this.state.toolData}
                         </Col>
                         <Col xs={12} md={8}>
-                            <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} bboxs = {this.state.bboxs}/>
+                            <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} bboxs = {this.state.bboxs} manualMode={this.state.manualMode}/>
                         </Col>
                     </Row>
                 </Container>
