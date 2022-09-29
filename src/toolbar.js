@@ -16,11 +16,6 @@ class Toolbar extends Component{
         this.cnt = 0;
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(prevProps.addingBbox == false && this.props.addingBbox == true)
-        {
-            this.setState({curManualBbox: this.props.manualBboxs.length - 1});
-            this.props.toolCallback({addingBbox: false});
-        }
     }
     sendData = () =>{
         this.props.toolCallback({'toolData': this.state.callbackData});
@@ -112,14 +107,15 @@ class Toolbar extends Component{
             <ListGroup.Item action key={'manualList-'+ String(bbox['id'])} id={String(bbox['id'])} onClick={this.chooseManualBbox}>
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
-        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} manualNum={String(bbox['id'])} 
-        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length}></ManualAnnotationCard>
+        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
+        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} addingBbox={this.props.addingBbox}></ManualAnnotationCard>
         </div>
         ));
     }
     chooseManualBbox = (e) => {
         if(this.props.stageRef){
-            this.setState({curManualBbox: e.target.id})
+            this.setState({curManualBbox: e.target.id});
+            this.props.toolCallback({addingBbox: false});
         }
     }
     manualAnn = () => {

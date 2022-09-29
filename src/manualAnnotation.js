@@ -7,7 +7,7 @@ class ManualAnnotationCard extends Component{
     constructor(props){
         super(props);
         this.importanceRef = React.createRef();
-        this.state = {mainStyle: {position: 'relative', display: 'none'}, bboxs: []};
+        this.state = {mainStyle: {position: 'relative', display: 'block'}, bboxs: []};
         this.intensity = { 1: 'extremely unimportant',
             2: 'moderately unimportant',
             3: 'slightly unimportant',
@@ -49,14 +49,30 @@ class ManualAnnotationCard extends Component{
     }
     componentDidUpdate(prevProps) {
         // Typical usage (don't forget to compare props):
-        if (this.props.visibleBbox !== prevProps.visibleBbox && (this.props.visibleBbox === this.props.manualNum)) {
+        if(this.props.bboxsLength !== prevProps.bboxsLength)
+        {
+            if(this.props.manualNum === this.props.bboxsLength - 1)
+                this.setState({mainStyle: {position: 'relative', display: 'block'}});
+            else
+                this.setState({mainStyle: {position: 'relative', display: 'none'}});
+            
+        }
+        if(this.props.visibleBbox !== prevProps.visibleBbox)
+        {
+            if(this.props.visibleBbox === this.props.manualNum)
+                this.setState({mainStyle: {position: 'relative', display: 'block'}});
+            else
+                this.setState({mainStyle: {position: 'relative', display: 'none'}});
+            
+        }
+        /*if (this.props.visibleBbox !== prevProps.visibleBbox && (this.props.visibleBbox === this.props.manualNum)) {
             // show if click
             this.setState({mainStyle: {position: 'relative', display: 'block'}});
         }
         else if(this.props.visibleBbox !== prevProps.visibleBbox && this.props.visibleBbox !== this.props.manualNum){
             // hide if not click
             this.setState({mainStyle: {position: 'relative', display: 'none'}})
-        }
+        }*/
     }
     reasonChange = (e)=>{
         var category = e.target.id.split('-')[1];
