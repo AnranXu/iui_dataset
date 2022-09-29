@@ -5,14 +5,22 @@ import { Component } from "react";
 //Also, always setting a server in Google/Amazon will cost us much money. So, I prefer using Amazon S3 to deploy our backend data transfer. 
 import s3_handler from "./library/s3uploader.js";
 import {Container, Row, Col, Card, ListGroup} from 'react-bootstrap';
-import AnnotationCard from './annotation.js';
+import DefaultAnnotationCard from './defaultAnnotation.js';
+import ManualAnnotationCard from "./manualAnnotation.js";
 class Toolbar extends Component{
 	constructor(props)
 	{
         super(props);
-        this.state = {'callbackData': 'sent', bboxs: [], labelList: [], 
-        curCat: '', 'manualModeText': 'Create Bounding Box'};
+        this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
+        curCat: '', curManualBbox: '', manualModeText: 'Create Bounding Box'};
         this.cnt = 0;
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.addingBbox == false && this.props.addingBbox == true)
+        {
+            this.setState({curManualBbox: this.props.manualBboxs.length - 1});
+            this.props.toolCallback({addingBbox: false});
+        }
     }
     sendData = () =>{
         this.props.toolCallback({'toolData': this.state.callbackData});
@@ -62,7 +70,7 @@ class Toolbar extends Component{
             console.error('Error:', error);
         });
     }
-    createLabelList = () => {
+    createDefaultLabelList = () => {
         
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
@@ -70,7 +78,7 @@ class Toolbar extends Component{
             <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
                 {label}
             </ListGroup.Item>
-        <AnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label}></AnnotationCard>
+        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label}></DefaultAnnotationCard>
         </div>
         ));
     }
@@ -96,16 +104,34 @@ class Toolbar extends Component{
             this.setState({curCat: e.target.id});
         }
     }
+    createManualLabelList = () => {
+        
+        //list label according to the category
+        return this.props.manualBboxs.map((bbox,i)=>(
+        <div>
+            <ListGroup.Item action key={'manualList-'+ String(bbox['id'])} id={String(bbox['id'])} onClick={this.chooseManualBbox}>
+                {'Label ' + String(bbox['id'])}
+            </ListGroup.Item>
+        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} manualNum={String(bbox['id'])} 
+        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length}></ManualAnnotationCard>
+        </div>
+        ));
+    }
+    chooseManualBbox = (e) => {
+        if(this.props.stageRef){
+            this.setState({curManualBbox: e.target.id})
+        }
+    }
     manualAnn = () => {
         
         if(this.props.manualMode === false)
         {
-            this.setState({'manualModeText': 'Stop Creating Bounding Box'});
+            this.setState({manualModeText: 'Stop Creating Bounding Box'});
             this.props.toolCallback({'manualMode': true});
         }   
         else
         {
-            this.setState({'manualModeText': 'Create Bounding Box'});
+            this.setState({manualModeText: 'Create Bounding Box'});
             this.props.toolCallback({'manualMode': false});
         }
             
@@ -118,17 +144,30 @@ class Toolbar extends Component{
                 <button onClick = {() => this.loadData()}>Test Loading</button>
                 <button onClick=  {() => this.manualAnn()}>{this.state.manualModeText}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
-                <div>
+                <div className="defaultLabel">
                 Label List
-                <Card style={{left: '3rem', width: '20rem' }} key={'toolbarCard'}>
+                <Card style={{left: '3rem', width: '20rem' }} key={'DefaultAnnotationCard'}>
                     {
                         this.state.labelList.length? 
                         <ListGroup variant="flush">
-                        {this.createLabelList()}
+                        {this.createDefaultLabelList()}
                         </ListGroup>
                         :
                         <div></div>
                     }
+                </Card>
+                </div>
+                <div className="manualLabel">
+                Manual Label
+                <Card style={{left: '3rem', width: '20rem' }} key={'ManualAnnotationCard'}>
+                {
+                    this.props.manualBboxs.length? 
+                    <ListGroup variant="flush">
+                        {this.createManualLabelList()}
+                    </ListGroup>
+                    :
+                    <div></div>
+                }
                 </Card>
                 </div>
             </div>

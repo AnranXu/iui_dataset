@@ -23,10 +23,11 @@ class Canvas extends Component{
 	{
         super(props);
         this.state = {bboxs: [], anns: [], imageURL: '', labelURL: '', 
-        imageWidth: 0, imageHeight: 0};
+        imageWidth: 0, imageHeight: 0, manualBboxs: []};
         this.stageRef = React.createRef();
         this.imageRef = React.createRef();
         this.virtualRectRef = React.createRef();
+        this.minBboxSize = 300;
     }
     loadImage = (url) =>{
         //load the image which has the lowest zIndex
@@ -41,7 +42,7 @@ class Canvas extends Component{
         this.sendStage();
         this.setManualMode();
     }
-    createBboxs = () => {
+    createDefaultBboxs = () => {
         console.log(this.props.bboxs);
         return this.props.bboxs.map((bbox, i)=>(
             <Rect
@@ -59,6 +60,25 @@ class Canvas extends Component{
             name={'bbox'}
             />
         ));
+    }
+    createManualBboxs = () => {
+
+        return this.state.manualBboxs.map((bbox, i)=>(
+            <Rect
+            x={parseInt(bbox['bbox'][0])}
+            y={parseInt(bbox['bbox'][1])}
+            width={parseInt(bbox['bbox'][2])}
+            height={parseInt(bbox['bbox'][3])}
+            fill= {"rgba(255,255,255,0)"}
+            draggable= {true}
+            shadowBlur={0}
+            stroke = {'blue'}
+            strokeWidth={3}
+            id={'manualBbox-' + bbox['id']}
+            key={'manualBbox-' + bbox['id']}
+            name={'bbox'}> 
+            </Rect>
+        ))
     }
     sendStage = () =>{
         this.props.toolCallback({'stageRef': this.stageRef});
@@ -113,7 +133,21 @@ class Canvas extends Component{
         setTimeout(() => {
             this.virtualRectRef.current.visible(false);
         });
-
+        var bboxs = this.state.manualBboxs;
+        var x = this.virtualRectRef.current.attrs['x'];
+        var y = this.virtualRectRef.current.attrs['y'];
+        var w = this.virtualRectRef.current.attrs['width'];
+        var h = this.virtualRectRef.current.attrs['height'];
+        // if the bounding box is too small, we do not create it.
+        if (w * h < this.minBboxSize)
+        {
+            this.props.toolCallback({addingBbox: false});
+            return;
+        }
+        bboxs.push({'bbox': [x,y,w,h]});
+        // add id from 0 to bboxs.length - 1 to each manual bounding box
+        bboxs = bboxs.map((bbox,i)=> ({...bbox, 'id': i}));
+        this.setState({manualBboxs: bboxs}, () => {this.props.toolCallback({manualBboxs: bboxs, addingBbox: true})});
       }
       this.stageRef.current.on('mousedown touchstart', selectorDownFunction);
       this.stageRef.current.on('mousemove touchmove', selectorMoveFunction);
@@ -127,9 +161,15 @@ class Canvas extends Component{
                         <URLImage src={this.props.imageURL} setRef={this.imageRef}></URLImage>
                         {/*Add A virtual rectangle for creating bounding box */}
                         <Rect fill={'rgba(0,50,180,0.5)'} stroke = {'blue'} visible={false} key={'virtualRect'} ref={this.virtualRectRef}></Rect>
-                        {/*This function maintains bounding boxes*/}
-                        {this.props.bboxs.length? this.createBboxs()
+                        {/*This function maintains defualt bounding boxes*/}
+                        {this.props.bboxs.length? this.createDefaultBboxs()
                         : 
+                        <Rect></Rect>
+                        }
+                        {/*This function maintains manual bounding boxes*/}
+                        {
+                        this.state.manualBboxs.length? this.createManualBboxs()
+                        :
                         <Rect></Rect>
                         }
                     </Layer>
