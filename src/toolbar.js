@@ -12,10 +12,13 @@ class Toolbar extends Component{
 	{
         super(props);
         this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
-        curCat: '', curManualBbox: '', manualModeText: 'Create Bounding Box'};
+        curCat: '', curManualBbox: '', manualModeText: 'Create Bounding Box',
+        prevCat: '', clickCnt: 0};
         this.cnt = 0;
     }
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    toolCallback = (childData) =>{
+        console.log(childData);
+        this.setState(childData);
     }
     sendData = () =>{
         this.props.toolCallback({'toolData': this.state.callbackData});
@@ -73,7 +76,7 @@ class Toolbar extends Component{
             <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
                 {label}
             </ListGroup.Item>
-        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label}></DefaultAnnotationCard>
+        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label} clickCnt={this.state.clickCnt}></DefaultAnnotationCard>
         </div>
         ));
     }
@@ -89,14 +92,17 @@ class Toolbar extends Component{
                 //highlight qualified bounding boxes (not finished)
                 if(bboxs[i].attrs['id'].split('-')[1] === e.target.id)
                 {
-                    bboxs[i].attrs['stroke'] = 'red';
+                    if(bboxs[i].attrs['stroke'] === 'black')
+                        bboxs[i].attrs['stroke'] = 'red';
+                    else
+                        bboxs[i].attrs['stroke'] = 'black';
                 }
                 else{
                     bboxs[i].attrs['stroke'] = 'black';
                 }
             }
             this.props.stageRef.current.getLayers()[0].batchDraw();
-            this.setState({curCat: e.target.id});
+            this.setState({curCat: e.target.id, clickCnt: this.state.clickCnt+1});
         }
     }
     createManualLabelList = () => {
@@ -119,7 +125,6 @@ class Toolbar extends Component{
         }
     }
     manualAnn = () => {
-        
         if(this.props.manualMode === false)
         {
             this.setState({manualModeText: 'Stop Creating Bounding Box'});

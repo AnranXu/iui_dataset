@@ -48,14 +48,19 @@ class DefaultAnnotationCard extends Component{
         ];
     }
     componentDidUpdate(prevProps) {
-        // Typical usage (don't forget to compare props):
-        if(this.props.visibleCat !== prevProps.visibleCat && this.props.visibleCat === this.props.category) {
-            // show if click
-            this.setState({mainStyle: {position: 'relative', display: 'block'}});
-        }
-        else if(this.props.visibleCat !== prevProps.visibleCat && this.props.visibleCat !== this.props.category){
-            // hide if not click
-            this.setState({mainStyle: {position: 'relative', display: 'none'}})
+        //when new click comes
+        if(this.props.clickCnt !== prevProps.clickCnt) 
+        {
+            if(this.props.visibleCat === this.props.category)
+            {
+                if(this.state.mainStyle.display === 'block')
+                    this.setState({mainStyle: {position: 'relative', display: 'none'}});
+                else    
+                    this.setState({mainStyle: {position: 'relative', display: 'block'}});
+            }
+            else{
+                this.setState({mainStyle: {position: 'relative', display: 'none'}});
+            }
         }
     }
     reasonChange = (e)=>{

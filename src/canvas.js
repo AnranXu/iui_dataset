@@ -43,7 +43,7 @@ class Canvas extends Component{
         this.setManualMode();
     }
     createDefaultBboxs = () => {
-        console.log(this.props.bboxs);
+        //console.log(this.props.bboxs);
         return this.props.bboxs.map((bbox, i)=>(
             <Rect
             x={parseInt(bbox['bbox'][0])}
@@ -76,7 +76,7 @@ class Canvas extends Component{
             strokeWidth={3}
             id={'manualBbox-' + bbox['id']}
             key={'manualBbox-' + bbox['id']}
-            name={'bbox'}> 
+            name={'manualBbox'}> 
             </Rect>
         ))
     }

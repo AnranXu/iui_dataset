@@ -48,7 +48,6 @@ class ManualAnnotationCard extends Component{
         ];
     }
     componentDidUpdate(prevProps) {
-        // Typical usage (don't forget to compare props):
         if(this.props.bboxsLength !== prevProps.bboxsLength)
         {
             if(this.props.manualNum === this.props.bboxsLength - 1)
