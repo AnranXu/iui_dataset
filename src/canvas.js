@@ -141,13 +141,13 @@ class Canvas extends Component{
         // if the bounding box is too small, we do not create it.
         if (w * h < this.minBboxSize)
         {
-            this.props.toolCallback({addingBbox: false});
+            this.props.toolCallback({manualMode: true});
             return;
         }
         bboxs.push({'bbox': [x,y,w,h]});
         // add id from 0 to bboxs.length - 1 to each manual bounding box
         bboxs = bboxs.map((bbox,i)=> ({...bbox, 'id': i}));
-        this.setState({manualBboxs: bboxs}, () => {this.props.toolCallback({manualBboxs: bboxs, addingBbox: true})});
+        this.setState({manualBboxs: bboxs}, () => {this.props.toolCallback({manualBboxs: bboxs, manualMode: false})});
       }
       this.stageRef.current.on('mousedown touchstart', selectorDownFunction);
       this.stageRef.current.on('mousemove touchmove', selectorMoveFunction);

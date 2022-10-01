@@ -12,8 +12,8 @@ class Toolbar extends Component{
 	{
         super(props);
         this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
-        curCat: '', curManualBbox: '', manualModeText: 'Create Bounding Box',
-        prevCat: '', clickCnt: 0};
+        curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
+        manualLabelClickCnt: 0};
         this.cnt = 0;
     }
     toolCallback = (childData) =>{
@@ -76,7 +76,7 @@ class Toolbar extends Component{
             <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
                 {label}
             </ListGroup.Item>
-        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label} clickCnt={this.state.clickCnt}></DefaultAnnotationCard>
+        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
         </div>
         ));
     }
@@ -102,7 +102,7 @@ class Toolbar extends Component{
                 }
             }
             this.props.stageRef.current.getLayers()[0].batchDraw();
-            this.setState({curCat: e.target.id, clickCnt: this.state.clickCnt+1});
+            this.setState({curCat: e.target.id, defaultLabelClickCnt: this.state.defaultLabelClickCnt+1});
         }
     }
     createManualLabelList = () => {
@@ -114,25 +114,23 @@ class Toolbar extends Component{
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
         <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
-        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} addingBbox={this.props.addingBbox}></ManualAnnotationCard>
+        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} clickCnt={this.state.manualLabelClickCnt}></ManualAnnotationCard>
         </div>
         ));
     }
     chooseManualBbox = (e) => {
         if(this.props.stageRef){
-            this.setState({curManualBbox: e.target.id});
+            this.setState({curManualBbox: e.target.id, manualLabelClickCnt: this.state.manualLabelClickCnt + 1});
             this.props.toolCallback({addingBbox: false});
         }
     }
     manualAnn = () => {
         if(this.props.manualMode === false)
         {
-            this.setState({manualModeText: 'Stop Creating Bounding Box'});
             this.props.toolCallback({'manualMode': true});
         }   
         else
         {
-            this.setState({manualModeText: 'Create Bounding Box'});
             this.props.toolCallback({'manualMode': false});
         }
             
@@ -143,7 +141,7 @@ class Toolbar extends Component{
                 <button onClick = {() => this.sendData()}>Test sending URL</button>
                 <button onClick = {() => this.fetchImage()}>Test S3</button>
                 <button onClick = {() => this.loadData()}>Test Loading</button>
-                <button onClick=  {() => this.manualAnn()}>{this.state.manualModeText}</button>
+                <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div className="defaultLabel">
                 Label List

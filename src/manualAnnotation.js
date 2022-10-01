@@ -50,16 +50,21 @@ class ManualAnnotationCard extends Component{
     componentDidUpdate(prevProps) {
         if(this.props.bboxsLength !== prevProps.bboxsLength)
         {
+            //when adding a new box
             if(this.props.manualNum === this.props.bboxsLength - 1)
                 this.setState({mainStyle: {position: 'relative', display: 'block'}});
             else
                 this.setState({mainStyle: {position: 'relative', display: 'none'}});
             
         }
-        if(this.props.visibleBbox !== prevProps.visibleBbox)
+        if(this.props.clickCnt !== prevProps.clickCnt)
         {
+            //when click existing boxes
             if(this.props.visibleBbox === this.props.manualNum)
-                this.setState({mainStyle: {position: 'relative', display: 'block'}});
+                if(this.state.mainStyle.display === 'block')
+                    this.setState({mainStyle: {position: 'relative', display: 'none'}});
+                else
+                    this.setState({mainStyle: {position: 'relative', display: 'block'}});
             else
                 this.setState({mainStyle: {position: 'relative', display: 'none'}});
             
