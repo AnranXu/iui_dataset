@@ -7,7 +7,7 @@ class ManualAnnotationCard extends Component{
     constructor(props){
         super(props);
         this.importanceRef = React.createRef();
-        this.state = {mainStyle: {position: 'relative', display: 'block'}, bboxs: []};
+        this.state = {mainStyle: {position: 'relative', display: 'block'}, bboxs: [], importanceValue: 4};
         this.intensity = { 1: 'extremely unimportant',
             2: 'moderately unimportant',
             3: 'slightly unimportant',
