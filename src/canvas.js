@@ -4,7 +4,7 @@ import { Component } from 'react';
 import React from 'react';
 import './canvas.css';
 // I use react-konva to realize the interaction with Images and annotations
-import { Stage, Layer, Image, Rect} from 'react-konva';
+import { Stage, Layer, Image, Rect, Transformer} from 'react-konva';
 import URLImage from './urlImage.js';
 import s3_handler from "./library/s3uploader.js";
 /*
@@ -23,20 +23,12 @@ class Canvas extends Component{
 	{
         super(props);
         this.state = {bboxs: [], anns: [], imageURL: '', labelURL: '', 
-        imageWidth: 0, imageHeight: 0, manualBboxs: []};
+        imageWidth: 0, imageHeight: 0, manualBboxs: [], selectedBbox: ''};
         this.stageRef = React.createRef();
         this.imageRef = React.createRef();
+        this.trRef = React.createRef();
         this.virtualRectRef = React.createRef();
         this.minBboxSize = 300;
-    }
-    loadImage = (url) =>{
-        //load the image which has the lowest zIndex
-        console.log('loading image');
-        //send stageRef 
-
-        return (
-            <URLImage src={url}></URLImage>
-        );
     }
     componentDidMount(){
         this.sendStage();
@@ -65,23 +57,55 @@ class Canvas extends Component{
 
         return this.state.manualBboxs.map((bbox, i)=>(
             <Rect
-            x={parseInt(bbox['bbox'][0])}
-            y={parseInt(bbox['bbox'][1])}
-            width={parseInt(bbox['bbox'][2])}
-            height={parseInt(bbox['bbox'][3])}
-            fill= {"rgba(255,255,255,0)"}
-            draggable= {true}
-            shadowBlur={0}
-            stroke = {'blue'}
-            strokeWidth={3}
-            id={'manualBbox-' + bbox['id']}
-            key={'manualBbox-' + bbox['id']}
-            name={'manualBbox'}> 
+              x={parseInt(bbox['bbox'][0])}
+              y={parseInt(bbox['bbox'][1])}
+              width={parseInt(bbox['bbox'][2])}
+              height={parseInt(bbox['bbox'][3])}
+              fill= {"rgba(255,255,255,0)"}
+              onClick = {this.manualBboxSelect}
+              onTap = {this.manualBboxSelect}
+              onTransformEnd = {(e) => {
+                // transformer is changing scale of the node
+                // and NOT its width or height
+                // but in the store we have only width and height
+                // to match the data better we will reset scale on transform end
+                const scaleX = e.target.attrs['scaleX'];
+                const scaleY = e.target.attrs['scaleY'];
+                e.target.scaleX(1);
+                e.target.scaleY(1);
+                e.target.attrs['x'] = e.target.x();
+                e.target.attrs['y'] = e.target.y();
+                e.target.attrs['width'] = scaleX * e.target.attrs['width'];
+                e.target.attrs['height'] = scaleY * e.target.attrs['height'];
+                const selectedShape = this.stageRef.current.find('#' + e.target.attrs['id']);
+                this.trRef.current.nodes(selectedShape);
+                this.stageRef.current.getLayers()[0].batchDraw();
+              }}
+              draggable= {true}
+              shadowBlur={0}
+              stroke = {'blue'}
+              strokeWidth={3}
+              id={'manualBbox-' + bbox['id']}
+              key={'manualBbox-' + bbox['id']}
+              name={'manualBbox'}> 
             </Rect>
         ))
     }
     sendStage = () =>{
         this.props.toolCallback({'stageRef': this.stageRef});
+    }
+    manualBboxSelect = (e) =>{
+      // if click again, cancel the selection
+      console.log('clicking bbox');
+      console.log(e.target.attrs['id']);
+      if(e.target.attrs['id'] === this.state.selectedBbox)
+      {
+        this.setState({selectedBbox: ''}, ()=>{this.trRef.current.nodes([]); this.stageRef.current.getLayers()[0].batchDraw();});
+      }
+      else{
+        const selectedShape = this.stageRef.current.find('#' + e.target.attrs['id']);
+        this.setState({selectedBbox: e.target.attrs['id']}, ()=>{this.trRef.current.nodes(selectedShape); this.stageRef.current.getLayers()[0].batchDraw();});
+      }
     }
     setManualMode = () => {
       var x1, y1, x2, y2;
@@ -153,10 +177,18 @@ class Canvas extends Component{
       this.stageRef.current.on('mousemove touchmove', selectorMoveFunction);
       this.stageRef.current.on('mouseup touchend', selectorUpFunction);
     }
+    checkDeselect = (e) => {
+      // deselect when clicked on empty area
+      const clickedOnEmpty = (e.target === this.stageRef.current || e.target === this.imageRef.current);
+      if (clickedOnEmpty) {
+        this.setState({selectedBbox: ''}, ()=>{this.trRef.current.nodes([]); this.stageRef.current.getLayers()[0].batchDraw();});
+      }
+    };
     render(){
         return (
             <div>
-                <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef}>
+                <Stage width={window.innerWidth} height={window.innerHeight} ref={this.stageRef} 
+                onMouseDown={this.checkDeselect} onTouchStart={this.checkDeselect}>
                     <Layer>
                         <URLImage src={this.props.imageURL} setRef={this.imageRef}></URLImage>
                         {/*Add A virtual rectangle for creating bounding box */}
@@ -172,6 +204,14 @@ class Canvas extends Component{
                         :
                         <Rect></Rect>
                         }
+                        <Transformer ref={this.trRef} rotateEnabled = {false} boundBoxFunc={(oldBox, newBox) => {
+                          if (newBox.width * newBox.height < this.minBboxSize) {
+                            return oldBox;
+                          }
+                          return newBox;
+                        }}
+                        >
+                        </Transformer>
                     </Layer>
                 </Stage>
             </div>
