@@ -62,9 +62,21 @@ class ManualAnnotationCard extends Component{
             //when click existing boxes
             if(this.props.visibleBbox === this.props.manualNum)
                 if(this.state.mainStyle.display === 'block')
+                {
+                    if(this.props.trRef){
+                        this.props.trRef.current.nodes([]);
+                    }
                     this.setState({mainStyle: {position: 'relative', display: 'none'}});
+                }
                 else
+                {
+                    if(this.props.stageRef && this.props.trRef){
+                        //choose the bounding box in transformer
+                        const selectedShape = this.props.stageRef.current.find('#manualBbox-' + this.props.id);
+                        this.props.trRef.current.nodes(selectedShape);
+                    }
                     this.setState({mainStyle: {position: 'relative', display: 'block'}});
+                }  
             else
                 this.setState({mainStyle: {position: 'relative', display: 'none'}});
             

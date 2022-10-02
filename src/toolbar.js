@@ -114,13 +114,15 @@ class Toolbar extends Component{
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
         <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
-        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} clickCnt={this.state.manualLabelClickCnt}></ManualAnnotationCard>
+        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} 
+        clickCnt={this.state.manualLabelClickCnt} stageRef={this.props.stageRef} trRef={this.props.trRef}></ManualAnnotationCard>
         </div>
         ));
     }
     chooseManualBbox = (e) => {
         if(this.props.stageRef){
             this.setState({curManualBbox: e.target.id, manualLabelClickCnt: this.state.manualLabelClickCnt + 1});
+            //exit the mode of adding bbox
             this.props.toolCallback({addingBbox: false});
         }
     }

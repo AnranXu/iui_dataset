@@ -3,6 +3,7 @@ import Toolbar from "./toolbar";
 import Canvas from "./canvas";
 import './general.css';
 import {Container, Row, Col} from 'react-bootstrap';
+import { IoTJobsDataPlane } from "aws-sdk";
 
 class General extends Component{
 	constructor(props)
@@ -13,6 +14,7 @@ class General extends Component{
             imageURL: '',
             bboxs: [],
             stageRef: null,
+            trRef: null,
             manualMode: false,
             manualBboxs: [],
             addingBbox: false
@@ -28,7 +30,7 @@ class General extends Component{
                 <Container>
 					<Row>
                         <Col xs={12} md={4}>
-                            <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} 
+                            <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
                             manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} addingBbox = {this.state.addingBbox}/>
                             {this.state.toolData}
                         </Col>

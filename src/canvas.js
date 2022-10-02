@@ -29,6 +29,7 @@ class Canvas extends Component{
         this.trRef = React.createRef();
         this.virtualRectRef = React.createRef();
         this.minBboxSize = 300;
+        this.bboxStrokeWidth = 3;
     }
     componentDidMount(){
         this.sendStage();
@@ -43,10 +44,10 @@ class Canvas extends Component{
             width={parseInt(bbox['bbox'][2])}
             height={parseInt(bbox['bbox'][3])}
             fill= {"rgba(255,255,255,0)"}
-            draggable= {true}
+            draggable= {false}
             shadowBlur={0}
             stroke = {'black'}
-            strokeWidth={3}
+            strokeWidth={this.bboxStrokeWidth}
             id={'bbox' + String(i) + '-' + String(bbox['category'])}
             key={'bbox' + String(i) + '-' + String(bbox['category'])}
             name={'bbox'}
@@ -83,8 +84,8 @@ class Canvas extends Component{
               }}
               draggable= {true}
               shadowBlur={0}
-              stroke = {'blue'}
-              strokeWidth={3}
+              stroke = {this.getColor(i)}
+              strokeWidth={this.bboxStrokeWidth}
               id={'manualBbox-' + bbox['id']}
               key={'manualBbox-' + bbox['id']}
               name={'manualBbox'}> 
@@ -92,7 +93,7 @@ class Canvas extends Component{
         ))
     }
     sendStage = () =>{
-        this.props.toolCallback({'stageRef': this.stageRef});
+        this.props.toolCallback({stageRef: this.stageRef, trRef: this.trRef});
     }
     manualBboxSelect = (e) =>{
       // if click again, cancel the selection
@@ -171,7 +172,11 @@ class Canvas extends Component{
         bboxs.push({'bbox': [x,y,w,h]});
         // add id from 0 to bboxs.length - 1 to each manual bounding box
         bboxs = bboxs.map((bbox,i)=> ({...bbox, 'id': i}));
-        this.setState({manualBboxs: bboxs}, () => {this.props.toolCallback({manualBboxs: bboxs, manualMode: false})});
+        this.setState({manualBboxs: bboxs}, () => {
+            this.props.toolCallback({manualBboxs: bboxs, manualMode: false});
+            const selectedShape = this.stageRef.current.find('#manualBbox-' + String(bboxs.length - 1));
+            this.trRef.current.nodes(selectedShape);
+        });
       }
       this.stageRef.current.on('mousedown touchstart', selectorDownFunction);
       this.stageRef.current.on('mousemove touchmove', selectorMoveFunction);
@@ -184,6 +189,17 @@ class Canvas extends Component{
         this.setState({selectedBbox: ''}, ()=>{this.trRef.current.nodes([]); this.stageRef.current.getLayers()[0].batchDraw();});
       }
     };
+    getColor = (idx) => {
+        idx = parseInt(idx);
+        var palette = [
+            '#2ec7c9', '#b6a2de', '#5ab1ef', '#ffb980', '#d87a80',
+            '#8d98b3', '#e5cf0d', '#97b552', '#95706d', '#dc69aa',
+            '#07a2a4', '#9a7fd1', '#588dd5', '#f5994e', '#c05050',
+            '#59678c', '#c9ab00', '#7eb00a', '#6f5553', '#c14089',
+            '#272727', '#C6A300', '#AD5A5A', '#CA8EC2', '#949449'
+        ]
+        return palette[idx % palette.length];
+    }
     render(){
         return (
             <div>
