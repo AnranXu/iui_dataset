@@ -5,12 +5,11 @@ from lvis import LVIS, LVISResults, LVISEval, LVISVis
 import os
 import json 
 import cv2
+import csv
 import numpy as np
 
-ANNOTATION_PATH = "./data/lvis_v1_val.json"
-IMAGE_PATH = "./data/val2017"
-MY_CAT = "person"
-LVIS_CAT = ['person']
+ANNOTATION_PATH = "./data/lvis_v1_train.json"
+IMAGE_PATH = "./data/all2017"
 
 class vis_dataset:
 
@@ -19,7 +18,10 @@ class vis_dataset:
         self.cat_id_map = dict()
         # map for category_id to category
         self.id_cat_map = dict()
+        self.lvis_vis = LVISVis(lvis_gt=ANNOTATION_PATH, img_dir=IMAGE_PATH)
         self.lvis_gt = LVIS(ANNOTATION_PATH)
+        self.MY_CAT = "Cigarettes"
+        self.LVIS_CAT = ['cigarette']
         for key, value in self.lvis_gt.cats.items():
             self.cat_id_map[value['name']] = key
             self.id_cat_map[key] = value['name']
@@ -46,20 +48,18 @@ class vis_dataset:
         return anns
 
     def extract_img(self)->None:
-        lvis_vis = LVISVis(lvis_gt=ANNOTATION_PATH, img_dir=IMAGE_PATH)
-        lvis_gt = LVIS(ANNOTATION_PATH)
-        for cat in LVIS_CAT:
+        for cat in self.LVIS_CAT:
             img_list = self.select_img_from_cat(cat)
             for id in img_list:
-                lvis_vis.vis_img(img_id=id, show_boxes=False, show_segms=False, show_classes= False, if_save = True, my_cat = MY_CAT)
-                if not os.path.exists('selected_label/' + MY_CAT):
-                    os.mkdir('./selected_label/' + MY_CAT)
-                with open('./selected_label/' + MY_CAT + '/' + str(id) + '_label', 'w') as f:
-                    for i, ann in enumerate(lvis_gt.img_ann_map[id]):
+                self.lvis_vis.vis_img(img_id=id, show_boxes=False, show_segms=False, show_classes= False, if_save = True, my_cat = self.MY_CAT)
+                if not os.path.exists('./selected_label/' + self.MY_CAT):
+                    os.mkdir('./selected_label/' + self.MY_CAT)
+                with open('./selected_label/' + self.MY_CAT + '/' + str(id) + '_label', 'w') as f:
+                    for i, ann in enumerate(self.lvis_gt.img_ann_map[id]):
                         ann['height'] = self.lvis_gt.imgs[id]['height']
                         ann['width'] = self.lvis_gt.imgs[id]['width']
                         ann['category'] = self.id_cat_map[ann['category_id']]
-                        if i == len(lvis_gt.img_ann_map[id]) - 1:
+                        if i == len(self.lvis_gt.img_ann_map[id]) - 1:
                             f.write(str(ann))
                         else:
                             f.write(str(ann) + '\n')
@@ -83,11 +83,36 @@ class vis_dataset:
         else:
             print('no img, quit')
             return 
+    
+    def generate_all_qualified_lvis_image(self)->None:
+        with open('./mycat_lvis_map.csv') as f:
+            res = csv.reader(f)
+            flag = 0
+            for row in res:
+                if not flag:
+                    flag = 1
+                    continue
+                self.MY_CAT = row[0]
+                print(self.MY_CAT)
+                self.LVIS_CAT = row[1].split('|')
+                skip = 0
+                for one_cat in self.LVIS_CAT:
+                    # skip those which we cannot get from LVIS
+                    print(one_cat)
+                    if 'OpenImages' in one_cat or 'None' in one_cat:
+                        skip = 1
+                        break
+                if skip:
+                    continue
+                self.extract_img()
+
+
 
 if __name__ == '__main__':
     vis_data = vis_dataset()
-    #vis_data.extract_img()
+    #vis_data.generate_all_qualified_lvis_image()
+    vis_data.extract_img()
     #print(len(vis_data.select_img_from_cat(MY_CAT)))
-    vis_data.vis_img(MY_CAT, 21879)
+    #vis_data.vis_img(MY_CAT, 21879)
     #extract_img()
     pass

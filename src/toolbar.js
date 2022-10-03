@@ -37,13 +37,13 @@ class Toolbar extends Component{
         var ret = {};
         //for testing image change,
         if(this.cnt === 0){
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/21879.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/21879_label'};
+            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090.jpg',
+            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090_label'};
             this.cnt += 1;
         }
         else{
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/20571.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/20571_label'};
+            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b.jpg',
+            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b_label'};
         }
         var ori_bboxs = [];
         var label_list = {};

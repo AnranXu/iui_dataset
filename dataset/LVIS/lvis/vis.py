@@ -110,7 +110,9 @@ class LVISVis:
         img = self.lvis_gt.load_imgs([img_id])[0]
         img_path = os.path.join(self.img_dir, img["coco_url"].split("/")[-1])
         if not os.path.exists(img_path):
+            print('no img, starting download')
             self.lvis_gt.download(self.img_dir, img_ids=[img_id])
+            print('finish downloading')
         img = cv2.imread(img_path)
         b, g, r = cv2.split(img)
         return cv2.merge([r, g, b])
@@ -142,6 +144,8 @@ class LVISVis:
         im = cv2.merge([b,g,r])
         width, height = self.lvis_gt.imgs[img_id]['width'], self.lvis_gt.imgs[img_id]['height']
         im = cv2.resize(im,(width,height))
+        if not os.path.exists('./selected_label/' + my_cat):
+            os.mkdir('./selected_label/' + my_cat)
         cv2.imwrite('./selected_img/' + my_cat + '/' + str(img_id) + '.jpg', im)
         for idx in sorted_inds:
             if cat_ids_to_show is not None and classes[idx] not in cat_ids_to_show:
