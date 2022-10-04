@@ -15,6 +15,7 @@ class Toolbar extends Component{
         this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
         curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
         manualLabelClickCnt: 0};
+        this.firstLoading = true;
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -22,9 +23,14 @@ class Toolbar extends Component{
     }
     sendData = () =>{
         this.props.toolCallback({'toolData': this.state.callbackData});
+        
     }
     uploadAnnotation = () =>{
-
+        var default_cards = (document.getElementsByClassName('defaultAnnotationCard'));
+        for(var i = 0; i < default_cards.length; i++)
+        {
+            console.log(default_cards[i].children);
+        }
     }
     updateRecord = (task_record) =>{
         var s3 = new s3_handler();
@@ -40,11 +46,9 @@ class Toolbar extends Component{
             {
                 var json = ori_anns[i].replaceAll("\'", "\"");
                 var cur_ann = JSON.parse(json); // parse each row as json file
-                console.log(cur_ann);
                 ori_bboxs.push({'bbox': cur_ann['bbox'], 'category': cur_ann['category'], 
                 'width': cur_ann['width'], 'height': cur_ann['height']}); //get bbox (x, y, w, h), width, height of the image (for unknown reasons, the scale of bboxs and real image sometimes are not identical), and category
                 //create list of category, we just need to know that this image contain those categories.
-                console.log(cur_ann['category']);
                 label_list[cur_ann['category']] = 1;
             }
             this.setState({bboxs: ori_bboxs, labelList: Object.keys(label_list)});
@@ -61,7 +65,7 @@ class Toolbar extends Component{
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
         var ret = {};
-        var worker_id = 'test5';
+        var worker_id = 'test7';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
@@ -97,8 +101,12 @@ class Toolbar extends Component{
             image_URL = prefix + 'all_img/'+ image_ID + '.jpg';
             label_URL = prefix + 'all_label/'+ image_ID + '_label';
             task_record['worker_record'][worker_id]['progress'] += 1; 
-            this.uploadAnnotation();
+            if(!this.firstLoading)
+                this.uploadAnnotation();  
+            else
+                this.firstLoading = false;
             this.updateRecord(task_record);
+            
         }).then(() => {
             console.log(image_URL);
             console.log(label_URL);
@@ -126,8 +134,11 @@ class Toolbar extends Component{
                     
                 </Row>
             </Container>
-            
-        <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
+        <div className={'defaultAnnotationCard'}>
+            <DefaultAnnotationCard key={'defaultAnnotationCard-'+label} visibleCat={this.state.curCat} 
+            category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
+        </div>
+        
         </div>
         ));
     }
@@ -164,7 +175,8 @@ class Toolbar extends Component{
             <ListGroup.Item action key={'manualList-'+ String(bbox['id'])} id={String(bbox['id'])} onClick={this.chooseManualBbox}>
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
-        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
+        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} className={'manualAnnotationCard'} 
+        id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
         visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} 
         clickCnt={this.state.manualLabelClickCnt} stageRef={this.props.stageRef} trRef={this.props.trRef}></ManualAnnotationCard>
         </div>
@@ -200,6 +212,7 @@ class Toolbar extends Component{
     render(){
         return (
             <div>
+                <button onClick= {()=>this.uploadAnnotation()}>Test uploading annotation</button>
                 <button onClick = {() => this.loadData()}>Loading the next image</button>
                 <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
