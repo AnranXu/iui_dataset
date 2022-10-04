@@ -42,14 +42,11 @@ class Canvas extends Component{
         var existing_ids = [];
         for(var i = 0; i < existing_bboxs.length; i++)
           existing_ids.push(existing_bboxs[i].attrs['id']);
-        console.log(existing_ids);
-        console.log(this.state.manualBboxs);
         for(var i = 0; i < this.state.manualBboxs.length; i++)
         {
           if(this.state.manualBboxs[i]['id'] in existing_ids)
             lefted_bboxs.push(this.state.manualBboxs[i]);
         }
-        console.log(lefted_bboxs);
         // find the one which 
         this.setState({manualBboxs:lefted_bboxs}, () => {this.props.toolCallback({manualBboxs:lefted_bboxs, deleteFlag: false});});
         
@@ -135,7 +132,7 @@ class Canvas extends Component{
             return;
         // do nothing if we mousedown on any shape
         //console.log(canvas.stage.find('.canvas'));
-        if (e.target !== this.imageRef.current) {
+        if (e.target.className !== 'Image' && e.target.className !== 'Rect') {
           return;
         }
         x1 = this.stageRef.current.getPointerPosition().x;
