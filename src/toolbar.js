@@ -31,8 +31,6 @@ class Toolbar extends Component{
         var s3 = new s3_handler();
     }
     readURL = (image_URL, label_URL) => {
-        console.log(image_URL);
-        console.log(label_URL);
         var ori_bboxs = [];
         var label_list = {};
         fetch(label_URL).then( (res) => res.text() ) //read new label as text
@@ -42,6 +40,7 @@ class Toolbar extends Component{
             {
                 var json = ori_anns[i].replaceAll("\'", "\"");
                 var cur_ann = JSON.parse(json); // parse each row as json file
+                console.log(cur_ann);
                 ori_bboxs.push({'bbox': cur_ann['bbox'], 'category': cur_ann['category'], 
                 'width': cur_ann['width'], 'height': cur_ann['height']}); //get bbox (x, y, w, h), width, height of the image (for unknown reasons, the scale of bboxs and real image sometimes are not identical), and category
                 //create list of category, we just need to know that this image contain those categories.
