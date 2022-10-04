@@ -49,7 +49,7 @@ class Toolbar extends Component{
             }
             this.setState({bboxs: ori_bboxs, labelList: Object.keys(label_list)});
         }
-        ).then(() => {this.props.toolCallback({imageURL: image_URL})})
+        ).then(() => {this.props.toolCallback({imageURL: image_URL, bboxs: ori_bboxs})})
         .catch((error) => {
             console.error('Error:', error);
         });
