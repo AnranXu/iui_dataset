@@ -23,31 +23,19 @@ class Toolbar extends Component{
     sendData = () =>{
         this.props.toolCallback({'toolData': this.state.callbackData});
     }
-    fetchImage = () =>{
-        // get url of image and label from amazon s3. Still on working.
-        var s3 = new s3_handler();
-        s3.s3_test();
+    uploadAnnotation = () =>{
+
     }
-    loadData = () =>{
-        /*Maintaining the list of bounding boxes from original dataset and annotators
-        The url links to the file that contains all the existing bounding boxes 
-        Each line of the file is one annotation
-        One annotation has 'bbox': 'category': for generating bounding boxes and getting category
-        */
-        var ret = {};
-        //for testing image change,
-        if(this.cnt === 0){
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090_label'};
-            this.cnt += 1;
-        }
-        else{
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b_label'};
-        }
+    fetchImageURL = () =>{
+        // get url of image and label from amazon s3.
+        var s3 = new s3_handler();
+    }
+    readURL = (image_URL, label_URL) => {
+        console.log(image_URL);
+        console.log(label_URL);
         var ori_bboxs = [];
         var label_list = {};
-        fetch(ret.labelURL).then( (res) => res.text() ) //read label as text
+        fetch(label_URL).then( (res) => res.text() ) //read new label as text
         .then( (text) => {
             var ori_anns = text.split('\n'); // split it as each row has one annotation
             for(var i = 0; i < ori_anns.length; i++)
@@ -60,13 +48,67 @@ class Toolbar extends Component{
                 console.log(cur_ann['category']);
                 label_list[cur_ann['category']] = 1;
             }
-            ret.bboxs = ori_bboxs;
             this.setState({bboxs: ori_bboxs, labelList: Object.keys(label_list)});
         }
-        ).then(() => {this.props.toolCallback(ret)})
+        ).then(() => {this.props.toolCallback({imageURL: image_URL})})
         .catch((error) => {
             console.error('Error:', error);
         });
+    }
+    loadData = () =>{
+        /*Maintaining the list of bounding boxes from original dataset and annotators
+        The url links to the file that contains all the existing bounding boxes 
+        Each line of the file is one annotation
+        One annotation has 'bbox': 'category': for generating bounding boxes and getting category
+        */
+        var ret = {};
+        var worker_id = 'test';
+        var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
+        var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
+        var image_URL = '';
+        var label_URL = '';
+        //for testing image change,
+        if(this.cnt === 0){
+            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090.jpg',
+            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090_label'};
+            this.cnt += 1;
+        }
+        else{
+            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b.jpg',
+            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b_label'};
+        }
+        fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
+            
+            text = text.replaceAll("\'", "\"");
+            console.log(text);
+            var task_record = JSON.parse(text); // parse each row as json file
+            //if this worker is back to his/her work
+            var cur_progress = 0;
+            var task_num = '0';
+            if(worker_id in task_record['worker_record'])
+            {
+                cur_progress = task_record['worker_record'][worker_id]['progress'];
+                task_num = task_record['worker_record'][worker_id]['task_num'];
+            }
+            //create new record and move old record
+            else{
+                task_record['worker_record'][worker_id] = {};
+                task_record['worker_record'][worker_id]['progress'] = 0;
+                task_num = task_record['cur_progess'];
+                task_record['worker_record'][worker_id]['task_num'] = task_record['cur_progess'];
+                task_record['cur_progess'] = String(parseInt(task_record['cur_progess']) + 1);
+            }
+            var image_ID = task_record[task_num]['img_list'][cur_progress];
+            image_URL = prefix + 'all_img/'+ image_ID + '.jpg';
+            label_URL = prefix + 'all_label/'+ image_ID + '_label';
+            
+            this.uploadAnnotation();
+        }).then(() => {
+            console.log(image_URL);
+            console.log(label_URL);
+            this.readURL(image_URL, label_URL)
+        });
+       
     }
     createDefaultLabelList = () => {
         

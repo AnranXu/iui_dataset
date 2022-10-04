@@ -26,14 +26,10 @@ class s3_handler{
     }     
     s3_test = () =>{
         console.log('testing s3');
-    }     
-    download_label = (url) =>{
-        this.s3.getObject({Bucket: this.bucketName,
-            Key: url}, (err, data) => {
-            let objectData = data.Body.toString('utf-8');
-            console.log(objectData);
-          });
-    }
+    }  
+    uploadImage = () => {
+        
+    }   
 }
      
 // upload one photo
