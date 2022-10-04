@@ -27,8 +27,26 @@ class s3_handler{
     s3_test = () =>{
         console.log('testing s3');
     }  
-    uploadImage = () => {
-        
+    updateRecord = (task_record) => {
+        var res = JSON.stringify(task_record);
+        var name = 'task_record.json';
+        var textBlob = new Blob([res], {
+            type: 'text/plain'
+        });
+        this.s3.upload({
+            Bucket: this.bucketName,
+            Key: name,
+            Body: textBlob,
+            ContentType: 'text/plain',
+            ACL: 'bucket-owner-full-control'
+        }, function(err, data) {
+            if(err) {
+                console.log(err);
+            }
+            }).on('httpUploadProgress', function (progress) {
+            var uploaded = parseInt((progress.loaded * 100) / progress.total);
+            $("progress").attr('value', uploaded);
+        });
     }   
 }
      

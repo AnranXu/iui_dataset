@@ -17,7 +17,8 @@ class General extends Component{
             trRef: null,
             manualMode: false,
             manualBboxs: [],
-            addingBbox: false
+            addingBbox: false,
+            deleteFlag: true
         }
     }
     toolCallback = (childData) =>{
@@ -35,7 +36,8 @@ class General extends Component{
                             {this.state.toolData}
                         </Col>
                         <Col xs={12} md={8}>
-                            <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} bboxs = {this.state.bboxs} manualMode={this.state.manualMode}/>
+                            <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} 
+                            bboxs = {this.state.bboxs} manualMode={this.state.manualMode} deleteFlag={this.state.deleteFlag}/>
                         </Col>
                     </Row>
                 </Container>

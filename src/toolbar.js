@@ -7,6 +7,7 @@ import s3_handler from "./library/s3uploader.js";
 import {Container, Row, Col, Card, ListGroup} from 'react-bootstrap';
 import DefaultAnnotationCard from './defaultAnnotation.js';
 import ManualAnnotationCard from "./manualAnnotation.js";
+import { experimentalStyled } from "@mui/material";
 class Toolbar extends Component{
 	constructor(props)
 	{
@@ -14,7 +15,6 @@ class Toolbar extends Component{
         this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
         curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
         manualLabelClickCnt: 0};
-        this.cnt = 0;
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -26,9 +26,9 @@ class Toolbar extends Component{
     uploadAnnotation = () =>{
 
     }
-    fetchImageURL = () =>{
-        // get url of image and label from amazon s3.
+    updateRecord = (task_record) =>{
         var s3 = new s3_handler();
+        s3.updateRecord(task_record);
     }
     readURL = (image_URL, label_URL) => {
         var ori_bboxs = [];
@@ -61,21 +61,12 @@ class Toolbar extends Component{
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
         var ret = {};
-        var worker_id = 'test';
+        var worker_id = 'test5';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
         var label_URL = '';
         //for testing image change,
-        if(this.cnt === 0){
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0c78bb26de5c0090_label'};
-            this.cnt += 1;
-        }
-        else{
-            ret = {imageURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b.jpg',
-            labelURL: 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/0b4d873e11cda01b_label'};
-        }
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
             
             text = text.replaceAll("\'", "\"");
@@ -97,11 +88,17 @@ class Toolbar extends Component{
                 task_record['worker_record'][worker_id]['task_num'] = task_record['cur_progess'];
                 task_record['cur_progess'] = String(parseInt(task_record['cur_progess']) + 1);
             }
+            if(cur_progress >= 10)
+            {
+                alert('You have finished your task, thank you!');
+                return;
+            }
             var image_ID = task_record[task_num]['img_list'][cur_progress];
             image_URL = prefix + 'all_img/'+ image_ID + '.jpg';
             label_URL = prefix + 'all_label/'+ image_ID + '_label';
-            
+            task_record['worker_record'][worker_id]['progress'] += 1; 
             this.uploadAnnotation();
+            this.updateRecord(task_record);
         }).then(() => {
             console.log(image_URL);
             console.log(label_URL);
@@ -114,9 +111,22 @@ class Toolbar extends Component{
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
         <div>
-            <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
-                {label}
-            </ListGroup.Item>
+            <Container>
+				<Row>
+                    <Col md={8}>
+                        <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
+                            {label}
+                        </ListGroup.Item>
+                    </Col>
+                    <Col md={4}>
+                        <button>
+                            Not Privacy
+                        </button>
+                    </Col>
+                    
+                </Row>
+            </Container>
+            
         <DefaultAnnotationCard key={'annotationCard-'+label} visibleCat={this.state.curCat} category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
         </div>
         ));
@@ -178,35 +188,46 @@ class Toolbar extends Component{
         }
             
     }
+    deleteSelectedLabel = () =>{
+        if(this.props.trRef.current.nodes().length !== 0)
+        {
+            var delete_target = this.props.trRef.current.nodes();
+            delete_target[0].destroy();
+            this.props.trRef.current.nodes([]);
+            this.props.toolCallback({deleteFlag: true});
+        }
+    }
     render(){
         return (
             <div>
-                <button onClick = {() => this.sendData()}>Test sending URL</button>
-                <button onClick = {() => this.fetchImage()}>Test S3</button>
-                <button onClick = {() => this.loadData()}>Test Loading</button>
+                <button onClick = {() => this.loadData()}>Loading the next image</button>
                 <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div className="defaultLabel">
                 Label List
                 <Card style={{left: '3rem', width: '20rem' }} key={'DefaultAnnotationCard'}>
-                    {
+                {
                         this.state.labelList.length? 
                         <ListGroup variant="flush">
                         {this.createDefaultLabelList()}
                         </ListGroup>
                         :
                         <div></div>
-                    }
+                }
                 </Card>
                 </div>
                 <div className="manualLabel">
                 Manual Label
+                <br></br>
+                {this.props.manualBboxs.length? <button onClick={ () => this.deleteSelectedLabel()}>Delete selected label</button>: <div></div>}
                 <Card style={{left: '3rem', width: '20rem' }} key={'ManualAnnotationCard'}>
                 {
                     this.props.manualBboxs.length? 
-                    <ListGroup variant="flush">
+                    <div>
+                        <ListGroup variant="flush">
                         {this.createManualLabelList()}
-                    </ListGroup>
+                        </ListGroup>
+                    </div>
                     :
                     <div></div>
                 }

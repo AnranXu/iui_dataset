@@ -35,6 +35,26 @@ class Canvas extends Component{
         this.sendStage();
         this.setManualMode();
     }
+    componentDidUpdate(prevProps, prevState){
+      if(this.props.deleteFlag){
+        var lefted_bboxs = [];
+        var existing_bboxs = this.stageRef.current.find('.manualBbox');
+        var existing_ids = [];
+        for(var i = 0; i < existing_bboxs.length; i++)
+          existing_ids.push(existing_bboxs[i].attrs['id']);
+        console.log(existing_ids);
+        console.log(this.state.manualBboxs);
+        for(var i = 0; i < this.state.manualBboxs.length; i++)
+        {
+          if(this.state.manualBboxs[i]['id'] in existing_ids)
+            lefted_bboxs.push(this.state.manualBboxs[i]);
+        }
+        console.log(lefted_bboxs);
+        // find the one which 
+        this.setState({manualBboxs:lefted_bboxs}, () => {this.props.toolCallback({manualBboxs:lefted_bboxs, deleteFlag: false});});
+        
+      }
+    }
     createDefaultBboxs = () => {
         //console.log(this.props.bboxs);
         return this.props.bboxs.map((bbox, i)=>(
