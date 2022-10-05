@@ -26,11 +26,62 @@ class Toolbar extends Component{
         
     }
     uploadAnnotation = () =>{
+        // collecting default annotation card
         var default_cards = (document.getElementsByClassName('defaultAnnotationCard'));
-        for(var i = 0; i < default_cards.length; i++)
+        var anns = {'defaultAnnotation': {}, 'manualAnnotation': {}};
+        //check if every default annotation contains users' input
+        var ifFinished = true;
+        for(var i = 0; i < this.state.labelList.length; i++)
         {
-            console.log(default_cards[i].children);
+            var category = this.state.labelList[i];
+            // if the user click not privacy, skip the check
+            var ifNoPrivacy = document.getElementById('privacyButton-' + category).style.color === 'red'? true : false;
+            if(ifNoPrivacy)
+                continue;
+            //check question 'what kind of information can this content tell?'
+            var reason = document.getElementById('reason-' + category);
+            var reason_input = document.getElementById('reasonInput-' + category);
+            if(reason.value === '0' || (reason.value === '5' && reason_input.value === ''))
+                ifFinished = false;
+            //check question 'to what extent would you share this photo at most?'
+            var sharing = document.getElementById('sharing-' + category);
+            var sharing_input = document.getElementById('sharing-' + category);
+            if(sharing.value === '0' || (sharing.value === '5' && sharing_input.value === ''))
+                ifFinished = false;
+            if(!ifFinished)
+            {
+                alert('Please input your answer in default label ' + category);
+                if(this.state.curCat !== category)
+                    document.getElementById(category).click();
+                return;
+            }
         }
+        for(var i = 0; i < this.props.manualBboxs.length; i++)
+        {
+            var id = this.props.manualBboxs[i]['id'];
+            var category_input = document.getElementById('categoryInput-' + id);
+            if(category_input.value === '')
+                ifFinished = false;
+            var reason = document.getElementById('reason-' + id);
+            console.log(reason);
+            var reason_input = document.getElementById('reasonInput-' + id);
+            if(reason.value === '0' || (reason.value === '5' && reason_input.value === ''))
+                ifFinished = false;
+            //check question 'to what extent would you share this photo at most?'
+            var sharing = document.getElementById('sharing-' + id);
+            console.log(sharing);
+            var sharing_input = document.getElementById('sharing-' + id);
+            if(sharing.value === '0' || (sharing.value === '5' && sharing_input.value === ''))
+                ifFinished = false;
+            if(!ifFinished)
+            {
+                alert('Please input your answer in manual label ' + id);
+                if(this.state.curManualBbox !== String(id))
+                    document.getElementById(id).click();
+                return;
+            }
+        }
+        console.log(ifFinished);
     }
     updateRecord = (task_record) =>{
         var s3 = new s3_handler();
@@ -65,16 +116,14 @@ class Toolbar extends Component{
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
         var ret = {};
-        var worker_id = 'test7';
+        var worker_id = 'test10';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
         var label_URL = '';
         //for testing image change,
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
-            
             text = text.replaceAll("\'", "\"");
-            console.log(text);
             var task_record = JSON.parse(text); // parse each row as json file
             //if this worker is back to his/her work
             var cur_progress = 0;
@@ -114,6 +163,13 @@ class Toolbar extends Component{
         });
        
     }
+    changePrivacyButton = (e) => {
+        console.log('get in');
+        if(e.target.style.color === 'black')
+            e.target.style.color = 'red';
+        else
+            e.target.style.color = 'black';
+    }
     createDefaultLabelList = () => {
         
         //list label according to the category
@@ -127,11 +183,10 @@ class Toolbar extends Component{
                         </ListGroup.Item>
                     </Col>
                     <Col md={4}>
-                        <button>
+                        <button style={{color:'black'}} id={'privacyButton-' + label} onClick={this.changePrivacyButton}>
                             Not Privacy
                         </button>
                     </Col>
-                    
                 </Row>
             </Container>
         <div className={'defaultAnnotationCard'}>
