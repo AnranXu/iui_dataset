@@ -8,6 +8,7 @@ import {Container, Row, Col, Card, ListGroup} from 'react-bootstrap';
 import DefaultAnnotationCard from './defaultAnnotation.js';
 import ManualAnnotationCard from "./manualAnnotation.js";
 import { experimentalStyled } from "@mui/material";
+import { Shield } from "aws-sdk";
 class Toolbar extends Component{
 	constructor(props)
 	{
@@ -82,6 +83,16 @@ class Toolbar extends Component{
             }
         }
         console.log(ifFinished);
+        // upload the result 
+        for(var i = 0; i < this.state.labelList.length; i++)
+        {
+
+        }
+        for(var i = 0; i < this.props.manualBboxs.length; i++)
+        {
+
+        }
+        this.props.toolCallback({clearManualBbox: true});
         return true;
     }
     updateRecord = (task_record) =>{

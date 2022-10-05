@@ -51,6 +51,10 @@ class Canvas extends Component{
         this.setState({manualBboxs:lefted_bboxs}, () => {this.props.toolCallback({manualBboxs:lefted_bboxs, deleteFlag: false});});
         
       }
+      if(this.props.clearManualBbox){
+        this.trRef.current.nodes([]);
+        this.setState({manualBboxs: []}, () => {this.props.toolCallback({manualBboxs: [], clearManualBbox: false});});
+      }
     }
     createDefaultBboxs = () => {
         //console.log(this.props.bboxs);
