@@ -1,7 +1,6 @@
 import { Component } from "react";
 import Toolbar from "./toolbar";
 import Canvas from "./canvas";
-import './general.css';
 import {Container, Row, Col} from 'react-bootstrap';
 import { IoTJobsDataPlane } from "aws-sdk";
 
@@ -32,9 +31,10 @@ class General extends Component{
                 <Container>
 					<Row>
                         <Col xs={12} md={4}>
+                            <button onClick= { () => this.props.toolCallback({page: 'intro'})}>Back to Introduction</button>
                             <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
-                            manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} addingBbox = {this.state.addingBbox}/>
-                            {this.state.toolData}
+                            manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} 
+                            addingBbox = {this.state.addingBbox} workerId = {this.props.workerId}/>
                         </Col>
                         <Col xs={12} md={8}>
                             <Canvas toolCallback = {this.toolCallback} imageURL = {this.state.imageURL} 
@@ -43,8 +43,6 @@ class General extends Component{
                         </Col>
                     </Row>
                 </Container>
-                
-                
             </div>
         );
     }

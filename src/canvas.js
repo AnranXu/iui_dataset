@@ -2,7 +2,6 @@ import {Container, Row, Col, ThemeProvider} from 'react-bootstrap';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { Component } from 'react';
 import React from 'react';
-import './canvas.css';
 // I use react-konva to realize the interaction with Images and annotations
 import { Stage, Layer, Image, Rect, Transformer} from 'react-konva';
 import URLImage from './urlImage.js';

@@ -24,9 +24,9 @@ class s3_handler{
         //var URIKey= encodeURIComponent(key);
         return s3;
     }     
-    s3_test = () =>{
-        console.log('testing s3');
-    }  
+    updateWorkerInfo = () =>{
+
+    }
     updateRecord = (task_record) => {
         var res = JSON.stringify(task_record);
         var name = 'task_record.json';
@@ -69,6 +69,27 @@ class s3_handler{
             $("progress").attr('value', uploaded);
         });
     }   
+    updateQuestionnaire = (anws, workerId)=>{
+        var res = JSON.stringify(anws);
+        var name = 'workerInfo/'+ workerId + '.json';
+        var textBlob = new Blob([res], {
+            type: 'text/plain'
+        });
+        this.s3.upload({
+            Bucket: this.bucketName,
+            Key: name,
+            Body: textBlob,
+            ContentType: 'text/plain',
+            ACL: 'bucket-owner-full-control'
+        }, function(err, data) {
+            if(err) {
+                console.log(err);
+            }
+            }).on('httpUploadProgress', function (progress) {
+            var uploaded = parseInt((progress.loaded * 100) / progress.total);
+            $("progress").attr('value', uploaded);
+        });
+    }
 }
      
 // upload one photo

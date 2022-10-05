@@ -7,8 +7,6 @@ import s3_handler from "./library/s3uploader.js";
 import {Container, Row, Col, Card, ListGroup} from 'react-bootstrap';
 import DefaultAnnotationCard from './defaultAnnotation.js';
 import ManualAnnotationCard from "./manualAnnotation.js";
-import { experimentalStyled } from "@mui/material";
-import { Shield } from "aws-sdk";
 class Toolbar extends Component{
 	constructor(props)
 	{
@@ -18,7 +16,6 @@ class Toolbar extends Component{
         manualLabelClickCnt: 0};
         this.firstLoading = true;
         this.image_ID = '';
-        this.worker_id = 'test15';
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -31,7 +28,7 @@ class Toolbar extends Component{
     uploadAnnotation = () =>{
         // collecting default annotation card
         var default_cards = (document.getElementsByClassName('defaultAnnotationCard'));
-        var anns = {'workerId': this.worker_id, 'defaultAnnotation': {}, 'manualAnnotation': {}};
+        var anns = {'workerId': this.props.workerId, 'defaultAnnotation': {}, 'manualAnnotation': {}};
         //check if every default annotation contains users' input
         var ifFinished = true;
         for(var i = 0; i < this.state.labelList.length; i++)
@@ -136,7 +133,7 @@ class Toolbar extends Component{
         this.props.toolCallback({clearManualBbox: true});
         console.log(anns);
         var s3 = new s3_handler();
-        s3.updateAnns(this.image_ID, this.worker_id, anns);
+        s3.updateAnns(this.image_ID, this.props.workerId, anns);
         return true;
     }
     updateRecord = (task_record) =>{
@@ -172,7 +169,6 @@ class Toolbar extends Component{
         Each line of the file is one annotation
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
-        var worker_id = 'test15';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
@@ -191,17 +187,17 @@ class Toolbar extends Component{
             //if this worker is back to his/her work
             var cur_progress = 0;
             var task_num = '0';
-            if(worker_id in task_record['worker_record'])
+            if(this.props.workerId in task_record['worker_record'])
             {
-                cur_progress = task_record['worker_record'][worker_id]['progress'];
-                task_num = task_record['worker_record'][worker_id]['task_num'];
+                cur_progress = task_record['worker_record'][this.props.workerId]['progress'];
+                task_num = task_record['worker_record'][this.props.workerId]['task_num'];
             }
             //create new record and move old record
             else{
-                task_record['worker_record'][worker_id] = {};
-                task_record['worker_record'][worker_id]['progress'] = 0;
+                task_record['worker_record'][this.props.workerId] = {};
+                task_record['worker_record'][this.props.workerId]['progress'] = 0;
                 task_num = task_record['cur_progess'];
-                task_record['worker_record'][worker_id]['task_num'] = task_record['cur_progess'];
+                task_record['worker_record'][this.props.workerId]['task_num'] = task_record['cur_progess'];
                 task_record['cur_progess'] = String(parseInt(task_record['cur_progess']) + 1);
             }
             if(cur_progress >= 10)
@@ -212,7 +208,7 @@ class Toolbar extends Component{
             this.image_ID = task_record[task_num]['img_list'][cur_progress];
             image_URL = prefix + 'all_img/'+ this.image_ID + '.jpg';
             label_URL = prefix + 'all_label/'+ this.image_ID + '_label';
-            task_record['worker_record'][worker_id]['progress'] += 1; 
+            task_record['worker_record'][this.props.workerId]['progress'] += 1; 
             
             this.updateRecord(task_record);
             return true;
@@ -331,7 +327,6 @@ class Toolbar extends Component{
     render(){
         return (
             <div>
-                <button onClick= {()=>this.uploadAnnotation()}>Test uploading annotation</button>
                 <button onClick = {() => this.loadData()}>Loading the next image</button>
                 <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
