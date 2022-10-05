@@ -8,7 +8,7 @@ import cv2
 import csv
 import numpy as np
 
-ANNOTATION_PATH = "./data/lvis_v1_train.json"
+ANNOTATION_PATH = "./data/lvis_v1_val.json"
 IMAGE_PATH = "./data/all2017"
 
 class vis_dataset:
@@ -59,6 +59,7 @@ class vis_dataset:
                         ann['height'] = self.lvis_gt.imgs[id]['height']
                         ann['width'] = self.lvis_gt.imgs[id]['width']
                         ann['category'] = self.id_cat_map[ann['category_id']]
+                        ann['source'] = 'LVIS'
                         if i == len(self.lvis_gt.img_ann_map[id]) - 1:
                             f.write(str(ann))
                         else:
@@ -110,8 +111,8 @@ class vis_dataset:
 
 if __name__ == '__main__':
     vis_data = vis_dataset()
-    #vis_data.generate_all_qualified_lvis_image()
-    vis_data.extract_img()
+    vis_data.generate_all_qualified_lvis_image()
+    #vis_data.extract_img()
     #print(len(vis_data.select_img_from_cat(MY_CAT)))
     #vis_data.vis_img(MY_CAT, 21879)
     #extract_img()

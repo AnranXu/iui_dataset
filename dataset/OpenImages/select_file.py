@@ -187,7 +187,7 @@ class selecter:
 				y = int(float(row[6]) * height)
 				w = int((float(row[5]) - float(row[4])) * width)
 				h = int((float(row[7]) - float(row[6])) * height)
-				ann = {'width': width, 'height': height, 'category_code': row[2], 'category': code_openimage_map[row[2]], 'bbox': [x,y,w,h]}
+				ann = {'width': width, 'height': height, 'category_code': row[2], 'category': code_openimage_map[row[2]], 'bbox': [x,y,w,h], 'source': 'OpenImages'}
 				anns.append(ann)
 				last_img_name = row[0]
 
@@ -221,9 +221,9 @@ class selecter:
 							w = i['width']
 							h = i['height']
 							if num == len(data) - 1:
-								f1.write(str({'category': 'identity', 'width': width, 'height': height, 'bbox': [x,y,w,h]}))
+								f1.write(str({'category': 'identity', 'width': width, 'height': height, 'bbox': [x,y,w,h], 'source': 'OpenImages'}))
 							else:
-								f1.write(str({'category': 'identity', 'width': width, 'height': height, 'bbox': [x,y,w,h]}) + '\n')
+								f1.write(str({'category': 'identity', 'width': width, 'height': height, 'bbox': [x,y,w,h], 'source': 'OpenImages'}) + '\n')
 					cv2.imwrite('./selected_img/Identity/' + row[27],img)
 				
 					

@@ -53,7 +53,7 @@ class Toolbar extends Component{
                 alert('Please input your answer in default label ' + category);
                 if(this.state.curCat !== category)
                     document.getElementById(category).click();
-                return;
+                return false;
             }
         }
         for(var i = 0; i < this.props.manualBboxs.length; i++)
@@ -78,10 +78,11 @@ class Toolbar extends Component{
                 alert('Please input your answer in manual label ' + id);
                 if(this.state.curManualBbox !== String(id))
                     document.getElementById(id).click();
-                return;
+                return false;
             }
         }
         console.log(ifFinished);
+        return true;
     }
     updateRecord = (task_record) =>{
         var s3 = new s3_handler();
@@ -116,13 +117,20 @@ class Toolbar extends Component{
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
         var ret = {};
-        var worker_id = 'test10';
+        var worker_id = 'test11';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
         var label_URL = '';
         //for testing image change,
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
+            var ifFinished = true;
+            if(!this.firstLoading)
+                ifFinished = this.uploadAnnotation();  
+            else
+                this.firstLoading = false;
+            if(!ifFinished)
+                return false;
             text = text.replaceAll("\'", "\"");
             var task_record = JSON.parse(text); // parse each row as json file
             //if this worker is back to his/her work
@@ -144,22 +152,22 @@ class Toolbar extends Component{
             if(cur_progress >= 10)
             {
                 alert('You have finished your task, thank you!');
-                return;
+                return false;
             }
             var image_ID = task_record[task_num]['img_list'][cur_progress];
             image_URL = prefix + 'all_img/'+ image_ID + '.jpg';
             label_URL = prefix + 'all_label/'+ image_ID + '_label';
             task_record['worker_record'][worker_id]['progress'] += 1; 
-            if(!this.firstLoading)
-                this.uploadAnnotation();  
-            else
-                this.firstLoading = false;
-            this.updateRecord(task_record);
             
-        }).then(() => {
-            console.log(image_URL);
-            console.log(label_URL);
-            this.readURL(image_URL, label_URL)
+            this.updateRecord(task_record);
+            return true;
+        }).then((flag) => {
+            if(flag)
+            {
+                console.log(image_URL);
+                console.log(label_URL);
+                this.readURL(image_URL, label_URL);
+            }
         });
        
     }

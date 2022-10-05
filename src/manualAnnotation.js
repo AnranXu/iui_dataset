@@ -156,7 +156,7 @@ class ManualAnnotationCard extends Component{
                     <Slider required style ={{width: '15rem'}} key={'importance-' + this.props.manualNum} defaultValue={4}  max={7} min={1} step={1} marks={this.marks} onChange={(e)=>{this.setState({importanceValue: e.target.value})}}/>
                     {/*<input key = {'importance-' + this.props.category} type='range' max={'7'} min={'1'} step={'1'} defaultValue={'4'} onChange={(e)=>{this.setState({importanceValue: e.target.value})}}/> */}
                     <Card.Text style={{textAlign: 'left'}}>
-                        <strong>Assuming you are the photo owner, to what extent would you share this photo at most?</strong>
+                        <strong>Assuming you are the photo owner, to what extent would you share this content at most?</strong>
                     </Card.Text>
                     <Form.Select defaultValue={'0'} key={'sharing-'+ this.props.manualNum} 
                     id={'sharing-'+ this.props.manualNum} onChange={this.sharingChange} required>
