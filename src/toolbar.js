@@ -17,6 +17,8 @@ class Toolbar extends Component{
         curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
         manualLabelClickCnt: 0};
         this.firstLoading = true;
+        this.image_ID = '';
+        this.worker_id = 'test15';
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -29,7 +31,7 @@ class Toolbar extends Component{
     uploadAnnotation = () =>{
         // collecting default annotation card
         var default_cards = (document.getElementsByClassName('defaultAnnotationCard'));
-        var anns = {'defaultAnnotation': {}, 'manualAnnotation': {}};
+        var anns = {'workerId': this.worker_id, 'defaultAnnotation': {}, 'manualAnnotation': {}};
         //check if every default annotation contains users' input
         var ifFinished = true;
         for(var i = 0; i < this.state.labelList.length; i++)
@@ -64,13 +66,11 @@ class Toolbar extends Component{
             if(category_input.value === '')
                 ifFinished = false;
             var reason = document.getElementById('reason-' + id);
-            console.log(reason);
             var reason_input = document.getElementById('reasonInput-' + id);
             if(reason.value === '0' || (reason.value === '5' && reason_input.value === ''))
                 ifFinished = false;
             //check question 'to what extent would you share this photo at most?'
             var sharing = document.getElementById('sharing-' + id);
-            console.log(sharing);
             var sharing_input = document.getElementById('sharing-' + id);
             if(sharing.value === '0' || (sharing.value === '5' && sharing_input.value === ''))
                 ifFinished = false;
@@ -86,13 +86,57 @@ class Toolbar extends Component{
         // upload the result 
         for(var i = 0; i < this.state.labelList.length; i++)
         {
-
+            
+            var category = this.state.labelList[i];
+            anns['defaultAnnotation'][category] = {'category': category, 'reason': '', 'reasonInput': '', 'importance': 4, 
+            'sharing': '', 'sharingInput': '', 'ifNoPrivacy': false};
+            var ifNoPrivacy = document.getElementById('privacyButton-' + category).style.color === 'red'? true : false;
+            if(ifNoPrivacy)
+            {
+                anns['defaultAnnotation'][category]['ifNoPrivacy'] = true;
+                continue;
+            }
+            var reason = document.getElementById('reason-' + category);
+            var reason_input = document.getElementById('reasonInput-' + category);
+            var importance = document.getElementById('importance-' + category);
+            var sharing = document.getElementById('sharing-' + category);
+            var sharing_input = document.getElementById('sharingInput-' + category);
+            anns['defaultAnnotation'][category]['reason'] = reason.value;
+            anns['defaultAnnotation'][category]['reasonInput'] = reason_input.value;
+            anns['defaultAnnotation'][category]['importance'] = importance.value;
+            anns['defaultAnnotation'][category]['sharing'] = sharing.value;
+            anns['defaultAnnotation'][category]['sharingInput'] = sharing_input.value;
         }
         for(var i = 0; i < this.props.manualBboxs.length; i++)
         {
+            var id = this.props.manualBboxs[i]['id'];
+            anns['manualAnnotation'][id] = {'category': '', 'bbox': [], 'reason': '', 'reasonInput': '', 'importance': 4, 
+            'sharing': '', 'sharingInput': ''};
+            var category_input = document.getElementById('categoryInput-' + id);
+            var bboxs =  this.props.stageRef.current.find('.manualBbox');
+            var bbox = [];
+            for(var i = 0; i < bboxs.length; i++)
+                if(bboxs[i].attrs['id'] === 'manualBbox-' + id)
+                    bbox = bboxs[i];
+            anns['manualAnnotation'][id]['category'] = category_input.value;
+            anns['manualAnnotation'][id]['bbox'] = [bbox.attrs['x'], bbox.attrs['y'], bbox.attrs['width'], bbox.attrs['height']];
+            var reason = document.getElementById('reason-' + id);
+            var reason_input = document.getElementById('reasonInput-' + id);
+            var importance = document.getElementById('importance-' + id);
+            console.log(importance);
+            var sharing = document.getElementById('sharing-' + id);
+            var sharing_input = document.getElementById('sharingInput-' + id);
+            anns['manualAnnotation'][id]['reason'] = reason.value;
+            anns['manualAnnotation'][id]['reasonInput'] = reason_input.value;
+            anns['manualAnnotation'][id]['importance'] = importance.value;
+            anns['manualAnnotation'][id]['sharing'] = sharing.value;
+            anns['manualAnnotation'][id]['sharingInput'] = sharing_input.value;
 
         }
         this.props.toolCallback({clearManualBbox: true});
+        console.log(anns);
+        var s3 = new s3_handler();
+        s3.updateAnns(this.image_ID, this.worker_id, anns);
         return true;
     }
     updateRecord = (task_record) =>{
@@ -100,6 +144,7 @@ class Toolbar extends Component{
         s3.updateRecord(task_record);
     }
     readURL = (image_URL, label_URL) => {
+        // fetch data from amazon S3
         var ori_bboxs = [];
         var label_list = {};
         fetch(label_URL).then( (res) => res.text() ) //read new label as text
@@ -127,8 +172,7 @@ class Toolbar extends Component{
         Each line of the file is one annotation
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
-        var ret = {};
-        var worker_id = 'test11';
+        var worker_id = 'test15';
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
@@ -165,9 +209,9 @@ class Toolbar extends Component{
                 alert('You have finished your task, thank you!');
                 return false;
             }
-            var image_ID = task_record[task_num]['img_list'][cur_progress];
-            image_URL = prefix + 'all_img/'+ image_ID + '.jpg';
-            label_URL = prefix + 'all_label/'+ image_ID + '_label';
+            this.image_ID = task_record[task_num]['img_list'][cur_progress];
+            image_URL = prefix + 'all_img/'+ this.image_ID + '.jpg';
+            label_URL = prefix + 'all_label/'+ this.image_ID + '_label';
             task_record['worker_record'][worker_id]['progress'] += 1; 
             
             this.updateRecord(task_record);
@@ -183,6 +227,7 @@ class Toolbar extends Component{
        
     }
     changePrivacyButton = (e) => {
+        //users may choose the default label as 'not privacy' to quickly annotating.
         console.log('get in');
         if(e.target.style.color === 'black')
             e.target.style.color = 'red';

@@ -48,6 +48,27 @@ class s3_handler{
             $("progress").attr('value', uploaded);
         });
     }   
+    updateAnns = (image_id, worker_id, anns) => {
+        var res = JSON.stringify(anns);
+        var name = 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
+        var textBlob = new Blob([res], {
+            type: 'text/plain'
+        });
+        this.s3.upload({
+            Bucket: this.bucketName,
+            Key: name,
+            Body: textBlob,
+            ContentType: 'text/plain',
+            ACL: 'bucket-owner-full-control'
+        }, function(err, data) {
+            if(err) {
+                console.log(err);
+            }
+            }).on('httpUploadProgress', function (progress) {
+            var uploaded = parseInt((progress.loaded * 100) / progress.total);
+            $("progress").attr('value', uploaded);
+        });
+    }   
 }
      
 // upload one photo

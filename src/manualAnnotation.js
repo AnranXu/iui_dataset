@@ -153,7 +153,14 @@ class ManualAnnotationCard extends Component{
                     <Card.Text style={{textAlign: 'center'}} ref={this.importanceRef}>
                     <strong> {this.intensity[this.state.importanceValue]} </strong>
                     </Card.Text>
-                    <Slider required style ={{width: '15rem'}} key={'importance-' + this.props.manualNum} defaultValue={4}  max={7} min={1} step={1} marks={this.marks} onChange={(e)=>{this.setState({importanceValue: e.target.value})}}/>
+                    <Slider required style ={{width: '15rem'}} key={'importance-' + this.props.manualNum} 
+                    defaultValue={4}  max={7} min={1} step={1} 
+                    marks={this.marks} onChange={(e, val)=>{
+                        this.setState({importanceValue: val}); 
+                        var input = document.getElementById('importance-' + this.props.manualNum);
+                        input.value = val;
+                        }}/>
+                    <input defaultValue={4} id={'importance-' + this.props.manualNum} style={{display: 'none'}}></input>
                     {/*<input key = {'importance-' + this.props.category} type='range' max={'7'} min={'1'} step={'1'} defaultValue={'4'} onChange={(e)=>{this.setState({importanceValue: e.target.value})}}/> */}
                     <Card.Text style={{textAlign: 'left'}}>
                         <strong>Assuming you are the photo owner, to what extent would you share this content at most?</strong>
