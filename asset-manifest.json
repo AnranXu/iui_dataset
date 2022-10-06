@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/iui_dataset/static/css/main.29cd549e.css",
-    "main.js": "/iui_dataset/static/js/main.ed6c7e6a.js",
+    "main.css": "/iui_dataset/static/css/main.c44e12c1.css",
+    "main.js": "/iui_dataset/static/js/main.edfcdb6b.js",
     "static/js/787.a5886cd6.chunk.js": "/iui_dataset/static/js/787.a5886cd6.chunk.js",
+    "static/media/demo.png": "/iui_dataset/static/media/demo.8a59f09e2d448c336121.png",
     "index.html": "/iui_dataset/index.html",
-    "main.29cd549e.css.map": "/iui_dataset/static/css/main.29cd549e.css.map",
-    "main.ed6c7e6a.js.map": "/iui_dataset/static/js/main.ed6c7e6a.js.map",
+    "main.c44e12c1.css.map": "/iui_dataset/static/css/main.c44e12c1.css.map",
+    "main.edfcdb6b.js.map": "/iui_dataset/static/js/main.edfcdb6b.js.map",
     "787.a5886cd6.chunk.js.map": "/iui_dataset/static/js/787.a5886cd6.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.29cd549e.css",
-    "static/js/main.ed6c7e6a.js"
+    "static/css/main.c44e12c1.css",
+    "static/js/main.edfcdb6b.js"
   ]
 }
