@@ -135,7 +135,7 @@ class Intro extends Component{
                 <Card.Title><h1><strong>How to use the interface</strong></h1></Card.Title>
                 <Card.Text>
                     <h3>
-                        Click the button '<strong>Loading the next image</strong>' to get the next image you need to annotate.
+                        Click the button '<strong>Load the next image</strong>' to get the next image you need to annotate.
                         <br></br>
                         <br></br>
                         You will see a list of labels after you load an image. 
@@ -159,7 +159,7 @@ class Intro extends Component{
                         Please also tell us why you create extra bounding boxes.
                         <br></br>
                         <br></br>
-                        Once you finish all the annotations, please click '<strong>Loading the next image</strong>' to annotate the next image.
+                        Once you finish all the annotations, please click '<strong>Load the next image</strong>' to annotate the next image.
                         <br></br>
                         <br></br>
                         The image below is an example of the interface.
