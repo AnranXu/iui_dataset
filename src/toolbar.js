@@ -191,7 +191,10 @@ class Toolbar extends Component{
         }).then((flag) =>{
             if(!this.first_loading && flag)
             {
+                var task_num = this.task_record['worker_record'][this.props.workerId]['task_num'];
                 this.task_record['worker_record'][this.props.workerId]['progress'] += 1; 
+                this.task_record[task_num]['workerprogress'] += 1;
+                console.log(this.task_record[task_num]);
                 //var ifUpdateRecord = this.updateRecord();
                 var s3_uploader = new s3_handler();
                 var res = JSON.stringify(this.task_record);
@@ -246,6 +249,8 @@ class Toolbar extends Component{
                 }
                 this.task_record['worker_record'][this.props.workerId] = {};
                 this.task_record['worker_record'][this.props.workerId]['progress'] = 0;
+                this.task_record[task_num]['workerid'] = this.props.workerId;
+                this.task_record[task_num]['workerprogress'] = 0;
                 this.task_record['worker_record'][this.props.workerId]['task_num'] = task_num;
                 this.task_record['cur_progess'] = String(parseInt(this.task_record['cur_progess']) + 1);
             }
