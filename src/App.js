@@ -17,11 +17,8 @@ class App extends Component {
   render(){
     return (
       <div className="App">
-        {
-          this.state.page === 'intro'? <Intro toolCallback={this.toolCallback}/>:
-          <General workerId = {this.state.workerId} toolCallback={this.toolCallback}/>
-        }
-        
+          <Intro display = {this.state.page==='intro'?true:false} toolCallback={this.toolCallback}/>
+          <General display = {this.state.page==='intro'?false:true} workerId = {this.state.workerId} toolCallback={this.toolCallback}/>
       </div>
     );
   }

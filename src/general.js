@@ -27,11 +27,11 @@ class General extends Component{
     }
     render(){
         return (
-            <div>
+            <div style={this.props.display?{display: 'block'}:{display: 'none'}}>
                 <Container>
 					<Row>
                         <Col xs={12} md={4}>
-                            <button onClick= { () => this.props.toolCallback({page: 'intro'})}>Back to Introduction</button>
+                            <button onClick= { () => {this.props.toolCallback({page: 'intro'});document.body.scrollTop = document.documentElement.scrollTop = 0;}}>Back to Introduction</button>
                             <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
                             manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} 
                             addingBbox = {this.state.addingBbox} workerId = {this.props.workerId}/>

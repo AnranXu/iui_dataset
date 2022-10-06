@@ -229,6 +229,7 @@ class selecter:
 					
 if __name__ == '__main__':
 	selecter = selecter()
+	selecter.extract_img_bbox()
 	selecter.extract_img_label()
 	#selecter.write(level = 'bbox', mode = 'validation', output_path = 'validation_bbox.txt')
 	#selecter.run_downloader()

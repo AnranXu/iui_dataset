@@ -4,7 +4,7 @@ Place Identifier,banner|map|traffic_light|signboard
 Identity,passport
 Home interior,air_conditioner|bed|sofa_bed|deck_chair|sofa
 Vehicle Plate,license_plate
-Bystander,person
+Bystander,None
 Food,apple|alcohol|applesauce|asparagus|avocado|bagel|banana|batter_(food)|bean_curd|beef_(food)|beer_bottle|beer_can|bell_pepper|birthday_cake|blackberry|blueberry|boiled_egg|bread|broccoli|cake|carrot|chocolate_mousse|cornbread|crabmeat|fish_(food)|egg|liquor|potato|sushi
 Paper&Document&Label,birthday_card|calendar|clipboard|notebook|tag|newspaper
 Screen,laptop_computer|monitor_(computer_equipment) computer_monitor

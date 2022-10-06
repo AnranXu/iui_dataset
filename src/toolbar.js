@@ -14,8 +14,10 @@ class Toolbar extends Component{
         this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
         curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
         manualLabelClickCnt: 0};
-        this.firstLoading = true;
+        this.first_loading = true;
         this.image_ID = '';
+        this.cur_source = '';
+        this.task_record = {};
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -27,15 +29,14 @@ class Toolbar extends Component{
     }
     uploadAnnotation = () =>{
         // collecting default annotation card
-        var default_cards = (document.getElementsByClassName('defaultAnnotationCard'));
-        var anns = {'workerId': this.props.workerId, 'defaultAnnotation': {}, 'manualAnnotation': {}};
+        var anns = {'source': this.cur_source, 'workerId': this.props.workerId, 'defaultAnnotation': {}, 'manualAnnotation': {}};
         //check if every default annotation contains users' input
         var ifFinished = true;
         for(var i = 0; i < this.state.labelList.length; i++)
         {
             var category = this.state.labelList[i];
             // if the user click not privacy, skip the check
-            var ifNoPrivacy = document.getElementById('privacyButton-' + category).style.color === 'red'? true : false;
+            var ifNoPrivacy = document.getElementById('privacyButton-' + category).checked;
             if(ifNoPrivacy)
                 continue;
             //check question 'what kind of information can this content tell?'
@@ -87,7 +88,7 @@ class Toolbar extends Component{
             var category = this.state.labelList[i];
             anns['defaultAnnotation'][category] = {'category': category, 'reason': '', 'reasonInput': '', 'importance': 4, 
             'sharing': '', 'sharingInput': '', 'ifNoPrivacy': false};
-            var ifNoPrivacy = document.getElementById('privacyButton-' + category).style.color === 'red'? true : false;
+            var ifNoPrivacy = document.getElementById('privacyButton-' + category).checked;
             if(ifNoPrivacy)
             {
                 anns['defaultAnnotation'][category]['ifNoPrivacy'] = true;
@@ -130,15 +131,21 @@ class Toolbar extends Component{
             anns['manualAnnotation'][id]['sharingInput'] = sharing_input.value;
 
         }
+        //clear all not privacy button
+        for(var i = 0; i < this.state.labelList.length; i++)
+        {
+            var privacyButton = document.getElementById('privacyButton-' + this.state.labelList[i]);
+            privacyButton.checked = false;
+        }
         this.props.toolCallback({clearManualBbox: true});
-        console.log(anns);
         var s3 = new s3_handler();
         s3.updateAnns(this.image_ID, this.props.workerId, anns);
         return true;
     }
-    updateRecord = (task_record) =>{
+    updateRecord = () =>{
         var s3 = new s3_handler();
-        s3.updateRecord(task_record);
+        var flag = s3.updateRecord(this.task_record);
+        return flag;
     }
     readURL = (image_URL, label_URL) => {
         // fetch data from amazon S3
@@ -151,6 +158,7 @@ class Toolbar extends Component{
             {
                 var json = ori_anns[i].replaceAll("\'", "\"");
                 var cur_ann = JSON.parse(json); // parse each row as json file
+                this.cur_source = cur_ann['source'];
                 ori_bboxs.push({'bbox': cur_ann['bbox'], 'category': cur_ann['category'], 
                 'width': cur_ann['width'], 'height': cur_ann['height']}); //get bbox (x, y, w, h), width, height of the image (for unknown reasons, the scale of bboxs and real image sometimes are not identical), and category
                 //create list of category, we just need to know that this image contain those categories.
@@ -169,48 +177,82 @@ class Toolbar extends Component{
         Each line of the file is one annotation
         One annotation has 'bbox': 'category': for generating bounding boxes and getting category
         */
+        
+        //for testing image change,
+        new Promise((resolve, reject) => {
+            var ifFinished = true;
+            if(!this.first_loading)
+            {
+                ifFinished = this.uploadAnnotation();  
+            }
+            console.log(this.first_loading);
+            resolve(ifFinished);
+            // update the record then
+        }).then((flag) =>{
+            if(!this.first_loading && flag)
+            {
+                this.task_record['worker_record'][this.props.workerId]['progress'] += 1; 
+                //var ifUpdateRecord = this.updateRecord();
+                var s3_uploader = new s3_handler();
+                var res = JSON.stringify(this.task_record);
+                var name = 'task_record.json';
+                var textBlob = new Blob([res], {
+                    type: 'text/plain'
+                });
+                var upload = s3_uploader.s3.upload({
+                    Bucket: 'iui-privacy-dataset',
+                    Key: name,
+                    Body: textBlob,
+                    ContentType: 'text/plain',
+                    ACL: 'bucket-owner-full-control'
+                });
+                var promise = upload.promise();
+                promise.then(()=>{
+                    this.getLabel();
+                });
+            }
+            else if(this.first_loading && flag)
+            {
+                this.getLabel();
+                this.first_loading = false;
+            }
+            // load the new record and get labelURL and imageURL
+        });
+    }
+    getLabel = ()=>{
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
         var image_URL = '';
         var label_URL = '';
-        //for testing image change,
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
             var ifFinished = true;
-            if(!this.firstLoading)
-                ifFinished = this.uploadAnnotation();  
-            else
-                this.firstLoading = false;
-            if(!ifFinished)
-                return false;
+            //upload the annotation first
             text = text.replaceAll("\'", "\"");
-            var task_record = JSON.parse(text); // parse each row as json file
+            this.task_record = JSON.parse(text); // parse each row as json file
             //if this worker is back to his/her work
             var cur_progress = 0;
             var task_num = '0';
-            if(this.props.workerId in task_record['worker_record'])
+            if(this.props.workerId in this.task_record['worker_record'])
             {
-                cur_progress = task_record['worker_record'][this.props.workerId]['progress'];
-                task_num = task_record['worker_record'][this.props.workerId]['task_num'];
+                cur_progress = this.task_record['worker_record'][this.props.workerId]['progress'];
+                task_num = this.task_record['worker_record'][this.props.workerId]['task_num'];
             }
             //create new record and move old record
             else{
-                task_record['worker_record'][this.props.workerId] = {};
-                task_record['worker_record'][this.props.workerId]['progress'] = 0;
-                task_num = task_record['cur_progess'];
-                task_record['worker_record'][this.props.workerId]['task_num'] = task_record['cur_progess'];
-                task_record['cur_progess'] = String(parseInt(task_record['cur_progess']) + 1);
+                this.task_record['worker_record'][this.props.workerId] = {};
+                this.task_record['worker_record'][this.props.workerId]['progress'] = 0;
+                task_num = this.task_record['cur_progess'];
+                this.task_record['worker_record'][this.props.workerId]['task_num'] = this.task_record['cur_progess'];
+                this.task_record['cur_progess'] = String(parseInt(this.task_record['cur_progess']) + 1);
             }
             if(cur_progress >= 10)
             {
                 alert('You have finished your task, thank you!');
                 return false;
             }
-            this.image_ID = task_record[task_num]['img_list'][cur_progress];
+            this.image_ID = this.task_record[task_num]['img_list'][cur_progress];
             image_URL = prefix + 'all_img/'+ this.image_ID + '.jpg';
             label_URL = prefix + 'all_label/'+ this.image_ID + '_label';
-            task_record['worker_record'][this.props.workerId]['progress'] += 1; 
-            
-            this.updateRecord(task_record);
             return true;
         }).then((flag) => {
             if(flag)
@@ -220,15 +262,10 @@ class Toolbar extends Component{
                 this.readURL(image_URL, label_URL);
             }
         });
-       
     }
     changePrivacyButton = (e) => {
         //users may choose the default label as 'not privacy' to quickly annotating.
-        console.log('get in');
-        if(e.target.style.color === 'black')
-            e.target.style.color = 'red';
-        else
-            e.target.style.color = 'black';
+        console.log(e.target.checked);
     }
     createDefaultLabelList = () => {
         
@@ -237,23 +274,19 @@ class Toolbar extends Component{
         <div>
             <Container>
 				<Row>
-                    <Col md={8}>
+                    <Col md={12}>
                         <ListGroup.Item action key={'categoryList-'+label} id={label} onClick={this.chooseLabel}>
                             {label}
                         </ListGroup.Item>
                     </Col>
-                    <Col md={4}>
-                        <button style={{color:'black'}} id={'privacyButton-' + label} onClick={this.changePrivacyButton}>
-                            Not Privacy
-                        </button>
-                    </Col>
                 </Row>
             </Container>
-        <div className={'defaultAnnotationCard'}>
-            <DefaultAnnotationCard key={'defaultAnnotationCard-'+label} visibleCat={this.state.curCat} 
-            category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
-        </div>
-        
+            <input type={'checkbox'} id={'privacyButton-' + label} onClick={this.changePrivacyButton}></input>
+                <span>The above content is <strong>not</strong> privacy-threatening</span>
+            <div className={'defaultAnnotationCard'}>
+                <DefaultAnnotationCard key={'defaultAnnotationCard-'+label} visibleCat={this.state.curCat} 
+                category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
+            </div>
         </div>
         ));
     }

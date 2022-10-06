@@ -116,4 +116,3 @@ if __name__ == '__main__':
     #print(len(vis_data.select_img_from_cat(MY_CAT)))
     #vis_data.vis_img(MY_CAT, 21879)
     #extract_img()
-    pass

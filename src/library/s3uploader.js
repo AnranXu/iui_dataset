@@ -39,13 +39,6 @@ class s3_handler{
             Body: textBlob,
             ContentType: 'text/plain',
             ACL: 'bucket-owner-full-control'
-        }, function(err, data) {
-            if(err) {
-                console.log(err);
-            }
-            }).on('httpUploadProgress', function (progress) {
-            var uploaded = parseInt((progress.loaded * 100) / progress.total);
-            $("progress").attr('value', uploaded);
         });
     }   
     updateAnns = (image_id, worker_id, anns) => {

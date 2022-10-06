@@ -8,18 +8,18 @@ class ManualAnnotationCard extends Component{
         super(props);
         this.importanceRef = React.createRef();
         this.state = {mainStyle: {position: 'relative', display: 'block'}, bboxs: [], importanceValue: 4};
-        this.intensity = { 1: 'extremely unimportant',
-            2: 'moderately unimportant',
-            3: 'slightly unimportant',
+        this.intensity = { 1: 'extremely uninformative',
+            2: 'moderately uninformative',
+            3: 'slightly uninformative',
             4: 'neutral',
-            5: 'slightly important',
-            6: 'moderately important',
-            7: 'extremely important'
+            5: 'slightly informative',
+            6: 'moderately informative',
+            7: 'extremely informative'
         };
         this.marks = [
             {
               value: 1,
-              label: 'unimportant',
+              label: 'unimformatic',
             },
             {
               value: 2,
@@ -43,7 +43,7 @@ class ManualAnnotationCard extends Component{
             },
             {
                 value: 7,
-                label: 'important',
+                label: 'informative',
             },
         ];
     }
