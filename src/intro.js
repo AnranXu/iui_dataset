@@ -144,7 +144,7 @@ class Intro extends Component{
                         You need to click each of them to answer if you regard this content as <strong>privacy-threatening</strong>.
                         <br></br>
                         <br></br>
-                        If you think this content is privacy-threatening, please ask the questions folded in the label.
+                        If you think this content is privacy-threatening, please answer the questions folded in the label.
                         <br></br>
                         <br></br>
                         If you think this content is not privacy-threatening, please check the 'not privacy' box to <strong>skip the annotation</strong>.
