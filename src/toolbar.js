@@ -364,7 +364,7 @@ class Toolbar extends Component{
                 <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div className="defaultLabel">
-                Label List
+                <h3>Label List</h3>
                 <Card style={{left: '3rem', width: '20rem' }} key={'DefaultAnnotationCard'}>
                 {
                         this.state.labelList.length? 
@@ -377,7 +377,7 @@ class Toolbar extends Component{
                 </Card>
                 </div>
                 <div className="manualLabel">
-                Manual Label
+                <h3>Manual Label</h3>
                 <br></br>
                 {this.props.manualBboxs.length? <button onClick={ () => this.deleteSelectedLabel()}>Delete selected label</button>: <div></div>}
                 <Card style={{left: '3rem', width: '20rem' }} key={'ManualAnnotationCard'}>
