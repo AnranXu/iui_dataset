@@ -117,6 +117,7 @@ class Intro extends Component{
     }
     taskIntro = (e) =>{
         var loading = require('./img/demo.png');
+        var finishPop = require('./img/finish.png');
         return(
             <div>
                 <Card.Text text={'dark'}>
@@ -173,6 +174,9 @@ class Intro extends Component{
                 <Card.Text>
                     <h3>
                         If you finish all the annotation tasks, the interface will pop up a piece of information.
+                        <br></br>
+                        <br></br>
+                        <img src = {finishPop} style = {{maxHeight: '100%', maxWidth: '100%'}}/>
                         <br></br>
                         <br></br>
                         Then, you may leave the interface, submit your status on the platform, and get approved. 
