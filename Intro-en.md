@@ -20,7 +20,7 @@
 
 
 
-### If you finish all the annotation tasks, the interface will pop up a piece of information.  Then, you may leave the interface and get approved on the platform.  If you want to leave the interface before finishing all tasks, please input the same info (especially **Worker's ID**) on this page and you may resume your task stage.
+### If you finish all the annotation tasks, the interface will pop up a piece of information.  Then, you may leave the interface, submit your status on the platform, and get approved.  If you want to leave the interface before finishing all tasks, please input the same info (especially **Worker's ID**) on this page and you may resume your task stage.
 
 
 

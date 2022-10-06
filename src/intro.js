@@ -116,7 +116,7 @@ class Intro extends Component{
         console.log(this.bigfiveAns);
     }
     taskIntro = (e) =>{
-        var loading = require('./img/loading.png');
+        var loading = require('./img/demo.png');
         return(
             <div>
                 <Card.Text text={'dark'}>
@@ -161,7 +161,12 @@ class Intro extends Component{
                         Once you finish all the annotations, please click '<strong>Loading the next image</strong>' to annotate the next image.
                         <br></br>
                         <br></br>
-                        
+                        The image below is an example of the interface.
+                        <br></br>
+                        <br></br>
+                        <img src = {loading} style = {{maxHeight: '100%', maxWidth: '100%'}}/>
+                        <br></br>
+                        <br></br>   
                     </h3>
                 </Card.Text>
                 <Card.Title><h1><strong>How to know if I finish the task?</strong></h1></Card.Title>
@@ -170,7 +175,7 @@ class Intro extends Component{
                         If you finish all the annotation tasks, the interface will pop up a piece of information.
                         <br></br>
                         <br></br>
-                        Then, you may leave the interface and get approved on the platform. 
+                        Then, you may leave the interface, submit your status on the platform, and get approved. 
                         <br></br>
                         <br></br>
                         If you want to leave the interface before finishing all tasks, please input the same info (especially <strong>Worker's ID</strong>) on this page and you may resume your task stage.
