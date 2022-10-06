@@ -360,7 +360,7 @@ class Toolbar extends Component{
     render(){
         return (
             <div>
-                <button onClick = {() => this.loadData()}>Loading the next image</button>
+                <button onClick = {() => this.loadData()}>Load the next image</button>
                 <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div className="defaultLabel">
