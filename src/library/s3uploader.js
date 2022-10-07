@@ -27,9 +27,6 @@ class s3_handler{
         //var URIKey= encodeURIComponent(key);
         return s3;
     }     
-    updateWorkerInfo = () =>{
-
-    }
     updateRecord = (task_record) => {
         var res = JSON.stringify(task_record);
         var name = this.platform[this.language] + 'task_record.json';

@@ -85,7 +85,7 @@ class Intro extends Component{
             var anws = {'name': this.name.current.value, 'age': this.age.current.value,
             'gender': this.gender, 'nationality': this.nationality.current.value,
             'workerId': this.workerId.current.value, 'bigfives': this.bigfiveAns};
-            var s3 = new s3_handler();
+            var s3 = new s3_handler(this.props.language);
             s3.updateQuestionnaire(anws, this.workerId.current.value);
             this.props.toolCallback({page: 'task', workerId: this.workerId.current.value});
             document.body.scrollTop = document.documentElement.scrollTop = 0;
