@@ -11,7 +11,7 @@ class Toolbar extends Component{
 	constructor(props)
 	{
         super(props);
-        this.state = {callbackData: 'sent', bboxs: [], labelList: [], 
+        this.state = {bboxs: [], labelList: [], 
         curCat: '', curManualBbox: '', prevCat: '', defaultLabelClickCnt: 0,
         manualLabelClickCnt: 0};
         this.first_loading = true;
@@ -32,10 +32,6 @@ class Toolbar extends Component{
     toolCallback = (childData) =>{
         console.log(childData);
         this.setState(childData);
-    }
-    sendData = () =>{
-        this.props.toolCallback({'toolData': this.state.callbackData});
-        
     }
     uploadAnnotation = () =>{
         // collecting default annotation card
