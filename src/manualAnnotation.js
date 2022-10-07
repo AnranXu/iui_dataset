@@ -8,44 +8,47 @@ class ManualAnnotationCard extends Component{
         super(props);
         this.importanceRef = React.createRef();
         this.state = {mainStyle: {position: 'relative', display: 'block'}, bboxs: [], importanceValue: 4};
-        this.intensity = { 1: 'extremely uninformative',
+        this.intensity = { 'en': {1: 'extremely uninformative',
             2: 'moderately uninformative',
             3: 'slightly uninformative',
             4: 'neutral',
             5: 'slightly informative',
             6: 'moderately informative',
-            7: 'extremely informative'
+            7: 'extremely informative'},
+            'jp':{1: '全く情報量が少ない',
+            2: 'ほとんど情報量が少ない',
+            3: 'あまり情報量が少ない',
+            4: 'どちらでもない',
+            5: 'やや情報量が多い',
+            6: 'そこそこ情報量が多い',
+            7: 'とても情報量が多い'}
         };
-        this.marks = [
-            {
-              value: 1,
-              label: 'unimformatic',
-            },
-            {
-              value: 2,
-              label: '',
-            },
-            {
-              value: 3,
-              label: '',
-            },
-            {
-              value: 4,
-              label: 'neutral',
-            },
-            {
-                value: 5,
-                label: '',
-            },
-            {
-                value: 6,
-                label: '',
-            },
-            {
-                value: 7,
-                label: 'informative',
-            },
-        ];
+        this.marks = { 'en':[
+            {value: 1,label: 'unimformatic'},
+            {value: 2,label: ''},
+            {value: 3,label: ''},
+            {value: 4,label: 'neutral'},
+            {value: 5,label: ''},
+            {value: 6,label: ''},
+            {value: 7,label: 'informative'}], 
+            'jp':[{value: 1,label: '情報量が少ない'},
+            {value: 2,label: ''},
+            {value: 3,label: ''},
+            {value: 4,label: 'どちらでもない'},
+            {value: 5,label: ''},
+            {value: 6,label: ''},
+            {value: 7,label: '情報量が多い'}]
+        };
+        this.text = {'title': {'en': 'Annotation Box', 'jp': 'アノテーションボックス'},
+        'contentQuestion': {'en': 'What is the content in the bounding box?', 'jp': '枠囲み内のコンテンツは何ですか？'},
+        'contentPlaceHolder': {'en': 'Please input here.', 'jp': 'ここにコンテンツを記入してください。'},
+        'reasonQuestion': {'en': 'Assuming you want to seek privacy of the photo owner, what kind of information can this content tell?',
+        'jp': '写真の所有者のプライバシーを得ようとする場合、このコンテンツからはどのような情報を読み取れますか？'},
+        'informativeQuestion': {'en': 'How imformative do you think about this privacy information for the photo owner?', 
+        'jp': 'この写真所有者のプライバシー情報については、どの程度考えていますか？'},
+        'placeHolder': {'en': 'Please input here.', 'jp': 'ここに理由を記入してください。'},
+        'sharingQuestion': {'en': 'Assuming you are the photo owner, to what extent would you share this content at most?', 
+        'jp': 'あなたが写真の所有者であると仮定して、このコンテンツを最大でどこまで共有しますか？'}};
     }
     componentDidUpdate(prevProps) {
         if(this.props.bboxsLength !== prevProps.bboxsLength)
@@ -91,13 +94,13 @@ class ManualAnnotationCard extends Component{
         }*/
     }
     reasonChange = (e)=>{
-        var category = e.target.id.split('-')[1];
-        var reason_text = document.getElementsByClassName('reasonInput-' + category);
+        var id = e.target.id.split('-')[1];
+        var reason_text = document.getElementsByClassName('reasonInput-' + id);
         if(e.target.value === '5')
         {
             reason_text[0].style.display = "";
             reason_text[0].required = "required";
-            reason_text[0].placeholder = "Please input here.";
+            reason_text[0].placeholder = this.text['placeHolder'][this.props.language];
         }
         else{
             reason_text[0].style.display = "none";
@@ -106,13 +109,13 @@ class ManualAnnotationCard extends Component{
         }
     }
     sharingChange = (e)=>{
-        var category = e.target.id.split('-')[1];
-        var sharing_text = document.getElementsByClassName('sharingInput-' + category);
+        var id = e.target.id.split('-')[1];
+        var sharing_text = document.getElementsByClassName('sharingInput-' + id);
         if(e.target.value === '5')
         {
             sharing_text[0].style.display = "";
             sharing_text[0].required = "required";
-            sharing_text[0].placeholder = "Please input here.";
+            sharing_text[0].placeholder = this.text['placeHolder'][this.props.language];
         }
         else{
             sharing_text[0].style.display = "none";
@@ -120,42 +123,69 @@ class ManualAnnotationCard extends Component{
             sharing_text[0].placeholder = "";
         }
     }
+    reason = () =>{
+        var options = {'en': ['Please select one option.', 'It tells personal identity.', 'It tells location of shooting.',
+        'It tells personal habits.', 'It tells social circle.', 'Other things it can tell (Please input below)'],
+        'jp': ['選択肢を一つ選んでください', '個人を特定できる', '撮影場所がわかる', '個人の習慣がわかる', '交友関係がわかる', 
+        'その他（以下に入力してください）']};
+        return(
+            <Form.Select defaultValue={'0'} key={'reason-'+ this.props.manualNum} 
+                    id={'reason-'+ this.props.manualNum} onChange={this.reasonChange} required>
+                        <option value='0'>{options[this.props.language][0]}</option>
+                        <option value='1'>{options[this.props.language][1]}</option>
+                        <option value='2'>{options[this.props.language][2]}</option>
+                        <option value='3'>{options[this.props.language][3]}</option>
+                        <option value='4'>{options[this.props.language][4]}</option>
+                        <option value='5'>{options[this.props.language][5]}</option>
+            </Form.Select>
+        );
+    }
+    sharing = () =>{
+        var options = {'en': ['Please select one option.', 'I won\'t share it', 'Family or friend',
+        'Public', 'Broadcast programme', 'Other recipients (Please input below)'],
+        'jp': ['選択肢を一つ選んでください', '共有しない', '家族または友人', '公開する', '放送番組', 
+        'その他の方（以下にご記入ください）']};
+        return(
+            <Form.Select defaultValue={'0'} key={'sharing-'+ this.props.manualNum}
+                    id={'sharing-'+ this.props.manualNum} onChange={this.sharingChange} required>
+                        <option value='0'>{options[this.props.language][0]}</option>
+                        <option value='1'>{options[this.props.language][1]}</option>
+                        <option value='2'>{options[this.props.language][2]}</option>
+                        <option value='3'>{options[this.props.language][3]}</option>
+                        <option value='4'>{options[this.props.language][4]}</option>
+                        <option value='5'>{options[this.props.language][5]}</option>
+            </Form.Select>
+        );
+    }
     render() {
         return(
             <div style={this.state.mainStyle}>
                 <Card style={{ width: '20rem' }} border={'none'}>
                 <Card.Body>
-                    <Card.Title style={{fontSize: 'large'}}><strong>Annotation Box</strong></Card.Title>
+                    <Card.Title style={{fontSize: 'large'}}><strong>{this.text['title'][this.props.language]}</strong></Card.Title>
                     <Card.Text style={{textAlign: 'left'}}>
-                        <strong>What is the content in the bounding box.</strong>
+                        <strong>{this.text['contentQuestion'][this.props.language]}</strong>
                     </Card.Text>
                     <input style={{width: '18rem'}} type='text' id={'categoryInput-'+ this.props.manualNum}
-                    key={'categoryInput-'+ this.props.manualNum} className={'categoryInput-'+ this.props.manualNum}></input>
+                    key={'categoryInput-'+ this.props.manualNum} className={'categoryInput-'+ this.props.manualNum}
+                    placeholder = {this.text['contentPlaceHolder'][this.props.language]}></input>
                     <br></br>
                     <Card.Text style={{textAlign: 'left'}}>
-                        <strong>What kind of information can this content tell?</strong>
+                        <strong>{this.text['reasonQuestion'][this.props.language]}</strong>
                     </Card.Text>
-                    <Form.Select defaultValue={'0'} key={'reason-'+ this.props.manualNum} 
-                    id={'reason-'+ this.props.manualNum} onChange={this.reasonChange} required>
-                        <option value='0'>Please select one option.</option>
-                        <option value='1'>It tells personal identity.</option>
-                        <option value='2'>It tells location of shooting.</option>
-                        <option value='3'>It tells personal habits.</option>
-                        <option value='4'>It tells social circle.</option>
-                        <option value='5'>Other things it can tell (Please input below)</option>
-                    </Form.Select>
+                    {this.reason()}
                     <br></br>
                     <input style={{width: '18rem', display: 'none'}} type='text' id={'reasonInput-'+ this.props.manualNum}
                     key={'reasonInput-'+ this.props.manualNum} className={'reasonInput-'+ this.props.manualNum}></input>
                     <Card.Text style={{textAlign: 'left'}}>
-                    <strong>How important do you think about this privacy information?</strong>
+                    <strong>{this.text['informativeQuestion'][this.props.language]}</strong>
                     </Card.Text>
                     <Card.Text style={{textAlign: 'center'}} ref={this.importanceRef}>
-                    <strong> {this.intensity[this.state.importanceValue]} </strong>
+                    <strong> {this.intensity[this.props.language][this.state.importanceValue]} </strong>
                     </Card.Text>
                     <Slider required style ={{width: '15rem'}} key={'importance-' + this.props.manualNum} 
                     defaultValue={4}  max={7} min={1} step={1} 
-                    marks={this.marks} onChange={(e, val)=>{
+                    marks={this.marks[this.props.language]} onChange={(e, val)=>{
                         this.setState({importanceValue: val}); 
                         var input = document.getElementById('importance-' + this.props.manualNum);
                         input.value = val;
@@ -163,17 +193,9 @@ class ManualAnnotationCard extends Component{
                     <input defaultValue={4} id={'importance-' + this.props.manualNum} style={{display: 'none'}}></input>
                     {/*<input key = {'importance-' + this.props.category} type='range' max={'7'} min={'1'} step={'1'} defaultValue={'4'} onChange={(e)=>{this.setState({importanceValue: e.target.value})}}/> */}
                     <Card.Text style={{textAlign: 'left'}}>
-                        <strong>Assuming you are the photo owner, to what extent would you share this content at most?</strong>
+                        <strong>{this.text['sharingQuestion'][this.props.language]}</strong>
                     </Card.Text>
-                    <Form.Select defaultValue={'0'} key={'sharing-'+ this.props.manualNum} 
-                    id={'sharing-'+ this.props.manualNum} onChange={this.sharingChange} required>
-                        <option value='0'>Please select one option.</option>
-                        <option value='1'>I won't share it</option>
-                        <option value='2'>Family or friend</option>
-                        <option value='3'>Public</option>
-                        <option value='4'>Broadcast programme</option>
-                        <option value='5'>Other recipients (Please input below)</option>
-                    </Form.Select>
+                    {this.sharing()}
                     <br></br>
                     <input style={{width: '18rem', display: 'none'}} type='text' id={'sharingInput-'+ this.props.manualNum}
                     key={'sharingInput-'+ this.props.manualNum} className={'sharingInput-'+ this.props.manualNum}></input>

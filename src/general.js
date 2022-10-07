@@ -20,6 +20,7 @@ class General extends Component{
             deleteFlag: true,
             clearManualBbox: false
         }
+        this.text = {'back': {'en': 'Back to Introduction', 'jp': 'はじめにに戻る'}};
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -31,9 +32,11 @@ class General extends Component{
                 <Container>
 					<Row>
                         <Col xs={12} md={4}>
-                            <button onClick= { () => {this.props.toolCallback({page: 'intro'});document.body.scrollTop = document.documentElement.scrollTop = 0;}}>Back to Introduction</button>
+                            <button onClick= { () => {this.props.toolCallback({page: 'intro'});
+                            document.body.scrollTop = document.documentElement.scrollTop = 0;}}>{this.text['back'][this.props.language]}
+                            </button>
                             <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
-                            manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} 
+                            manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} language = {this.props.language}
                             addingBbox = {this.state.addingBbox} workerId = {this.props.workerId}/>
                         </Col>
                         <Col xs={12} md={8}>

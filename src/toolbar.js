@@ -18,6 +18,16 @@ class Toolbar extends Component{
         this.image_ID = '';
         this.cur_source = '';
         this.task_record = {};
+        this.platform = {'en': 'Prolific/',
+        'jp': 'CrowdWorks/'};
+        this.text = {'load': {'en': 'Load the next image', 'jp': '次の画像を読み込む'},
+        'manualOn': {'en': 'Stop Creating Bounding Box', 'jp': 'バウンディングボックスの作成中止'},
+        'manualOff': {'en': 'Create Bounding Box', 'jp': 'バウンディングボックスの作成'},
+        'labelList': {'en': 'Label List', 'jp': 'ラベルリスト'},
+        'manualList': {'en': 'Manual Label', 'jp': '手動ラベル'},
+        'deleteManualBbox': {'en': 'Delete selected label', 'jp': '選択したラベルを削除する'},
+        'privacyButton': {'en': 'The above content is <strong>not</strong> privacy-threatening',
+        'jp': '上記の内容はプライバシーを脅かすものではありません'}};
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -138,12 +148,12 @@ class Toolbar extends Component{
             privacyButton.checked = false;
         }
         this.props.toolCallback({clearManualBbox: true});
-        var s3 = new s3_handler();
+        var s3 = new s3_handler(this.props.language);
         s3.updateAnns(this.image_ID, this.props.workerId, anns);
         return true;
     }
     updateRecord = () =>{
-        var s3 = new s3_handler();
+        var s3 = new s3_handler(this.props.language);
         var flag = s3.updateRecord(this.task_record);
         return flag;
     }
@@ -196,9 +206,9 @@ class Toolbar extends Component{
                 this.task_record[task_num]['workerprogress'] += 1;
                 console.log(this.task_record[task_num]);
                 //var ifUpdateRecord = this.updateRecord();
-                var s3_uploader = new s3_handler();
+                var s3_uploader = new s3_handler(this.props.language);
                 var res = JSON.stringify(this.task_record);
-                var name = 'task_record.json';
+                var name = this.platform[this.props.language] + 'task_record.json';
                 var textBlob = new Blob([res], {
                     type: 'text/plain'
                 });
@@ -224,7 +234,7 @@ class Toolbar extends Component{
     }
     getLabel = ()=>{
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
-        var task_record_URL = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/task_record.json';
+        var task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
         var image_URL = '';
         var label_URL = '';
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
@@ -290,10 +300,11 @@ class Toolbar extends Component{
                 </Row>
             </Container>
             <input type={'checkbox'} id={'privacyButton-' + label} onClick={this.changePrivacyButton}></input>
-                <span>The above content is <strong>not</strong> privacy-threatening</span>
+                <span>{this.text['privacyButton'][this.props.language]}</span>
             <div className={'defaultAnnotationCard'}>
                 <DefaultAnnotationCard key={'defaultAnnotationCard-'+label} visibleCat={this.state.curCat} 
-                category = {label} clickCnt={this.state.defaultLabelClickCnt}></DefaultAnnotationCard>
+                category = {label} clickCnt={this.state.defaultLabelClickCnt}language = {this.props.language}>
+                </DefaultAnnotationCard>
             </div>
         </div>
         ));
@@ -332,7 +343,7 @@ class Toolbar extends Component{
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
             <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} className={'manualAnnotationCard'} 
-            id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
+            id = {String(bbox['id'])} manualNum={String(bbox['id'])} language = {this.props.language}
             visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} 
             clickCnt={this.state.manualLabelClickCnt} stageRef={this.props.stageRef} trRef={this.props.trRef}></ManualAnnotationCard>
         </div>
@@ -368,11 +379,11 @@ class Toolbar extends Component{
     render(){
         return (
             <div>
-                <button onClick = {() => this.loadData()}>Load the next image</button>
-                <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? 'Stop Creating Bounding Box': 'Create Bounding Box'}</button>
+                <button onClick = {() => this.loadData()}>{this.text['load'][this.props.language]}</button>
+                <button onClick=  {() => this.manualAnn()}>{this.props.manualMode? this.text['manualOn'][this.props.language]: this.text['manualOff'][this.props.language]}</button>
                 {/* Menu for choosing all bounding boxes from a specific category */}
                 <div className="defaultLabel">
-                <h3>Label List</h3>
+                <h3>{this.text['labelList'][this.props.language]}</h3>
                 <Card style={{left: '3rem', width: '20rem' }} key={'DefaultAnnotationCard'}>
                 {
                         this.state.labelList.length? 
@@ -385,9 +396,9 @@ class Toolbar extends Component{
                 </Card>
                 </div>
                 <div className="manualLabel">
-                <h3>Manual Label</h3>
+                <h3>{this.text['manualList'][this.props.language]}</h3>
                 <br></br>
-                {this.props.manualBboxs.length? <button onClick={ () => this.deleteSelectedLabel()}>Delete selected label</button>: <div></div>}
+                {this.props.manualBboxs.length? <button onClick={ () => this.deleteSelectedLabel()}>{this.text['deleteManualBbox'][this.props.language]}</button>: <div></div>}
                 <Card style={{left: '3rem', width: '20rem' }} key={'ManualAnnotationCard'}>
                 {
                     this.props.manualBboxs.length? 

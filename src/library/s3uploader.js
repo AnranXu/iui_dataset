@@ -2,10 +2,13 @@ import $ from "jquery";
 import AWS from 'aws-sdk';
 
 class s3_handler{
-    constructor()
+    constructor(language)
     {
         this.s3 = this.s3_init();
+        this.language = language;
         this.bucketName = 'iui-privacy-dataset';
+        this.platform = {'en': 'Prolific/',
+        'jp': 'CrowdWorks/'};
         //var len = 0;
     }
     s3_init() {
@@ -29,7 +32,7 @@ class s3_handler{
     }
     updateRecord = (task_record) => {
         var res = JSON.stringify(task_record);
-        var name = 'task_record.json';
+        var name = this.platform[this.language] + 'task_record.json';
         var textBlob = new Blob([res], {
             type: 'text/plain'
         });
@@ -43,7 +46,7 @@ class s3_handler{
     }   
     updateAnns = (image_id, worker_id, anns) => {
         var res = JSON.stringify(anns);
-        var name = 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
+        var name = this.platform[this.language] + 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
         var textBlob = new Blob([res], {
             type: 'text/plain'
         });
@@ -64,7 +67,7 @@ class s3_handler{
     }   
     updateQuestionnaire = (anws, workerId)=>{
         var res = JSON.stringify(anws);
-        var name = 'workerInfo/'+ workerId + '.json';
+        var name = this.platform[this.language] + 'workerInfo/'+ workerId + '.json';
         var textBlob = new Blob([res], {
             type: 'text/plain'
         });

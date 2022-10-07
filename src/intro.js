@@ -18,6 +18,19 @@ class Intro extends Component{
         this.workerId = React.createRef();
         for(var i = 0; i < 10; i++)
             this.bigfiveRef[i] = React.createRef();
+        this.text = {'instruction': {'en': 'Instruction', 'jp': '手順'},
+        'task': {'en': 'Task', 'jp': '作業'},
+        'name': {'en': 'Name:', 'jp': '名前:'},
+        'gender': {'en': 'Gender:', 'jp': '性别:'},
+        'male': {'en': 'Male', 'jp': '男性'},
+        'female': {'en': 'Female', 'jp': '女性'},
+        'not mention': {'en': 'Prefer not to mention', 'jp': '回答しない'},
+        'age': {'en': 'Age (Your age should be from 20 to 70):', 'jp': '年齢（20歳以上70歳未満でお願いします）:'},
+        'nationality': {'en': 'Nationality:', 'jp': '国籍:'},
+        'workerId': {'en': 'Worker\'s ID:', 'jp': 'ワーカーズID:'},
+        'bigfiveTitle': {'en': 'Please answer the following questions.', 'jp': '以下の質問にお答えください。'},
+        'confirmText0': {'en': 'I fully understood the study and want to do this task with my consent.', 'jp': '私はこの研究を十分に理解し、同意の上でこの作業を行いたいです。'},
+        'confirmText1': {'en': '(You may back to read the instruction later if you need)', 'jp': '(必要であれば、後で説明書を読み返すことができます）'}};
     }
     submit = () =>{
         var ifFinished = true;
@@ -128,9 +141,9 @@ class Intro extends Component{
         this.bigfiveAns[parseInt(e.target.name.split('-')[1])] = e.target.value;
         console.log(this.bigfiveAns);
     }
-    taskIntro = (e) =>{
-        var loading = require('./img/demo.png');
-        var finishPop = require('./img/finish.png');
+    taskIntroEn = (e) =>{
+        var loading = require('./img/demo_en.png');
+        var finishPop = require('./img/finish_en.png');
         return(
             <div>
                 <Card.Text text={'dark'}>
@@ -202,6 +215,73 @@ class Intro extends Component{
             
         );
     }
+    taskIntroJp = (e) =>{
+        var loading = require('./img/demo_en.png');
+        var finishPop = require('./img/finish_en.png');
+        return(
+            <div>
+                <Card.Text text={'dark'}>
+                    <h3>
+                    この作業は、与えられた画像（通常10枚の画像があります）の中で、プライバシーを脅かすすべてのコンテンツにアノテーションを行う（注釈を付ける）ことです。 
+                    <br></br>
+                    <br></br>
+                    まず、あなたの基本情報を入力し、簡単なアンケートに答えてください。 
+                    <br></br>
+                    <br></br>
+                    一番下のボタンをクリックすると、作業用の画面に移ります。
+                    </h3>
+                </Card.Text>
+                <Card.Title><h1><strong>インターフェイスの使い方</strong></h1></Card.Title>
+                <Card.Text>
+                    <h3>
+                        ボタン 「<strong>次の画像を読み込む</strong>」をクリックすると、次にアノテーションする画像が表示されます。 画像が読み込まれると、ラベルのリストが表示されます。
+                        <br></br>
+                        <br></br>
+                        これらが<strong>プライバシーを脅かすもの</strong>と考えた場合、クリックしてください。また、その場合ラベルに折りたたまれている質問にも答えてください。
+                        <br></br>
+                        <br></br>
+                        このコンテンツがプライバシーを脅かすものではないと考える場合は、「<strong>上記の内容はプライバシーを脅かすものではありません</strong>」とうボックスにチェックを入れて、<strong>アノテーションをスキップしてください</strong>。
+                        <br></br>
+                        <br></br>
+                        プライバシーを脅かすが、<strong>デフォルトの枠囲みが付与されていない</strong>ものを見つけた場合、「<strong>枠囲みを作成する</strong>」ボタンで追加のボックスを追加することができます。
+                        <br></br>
+                        <br></br>
+                        クリックした後、画像にマウスを移動し、マウスダウン、マウスアップでバウンディングボックスを作成してください。
+                        <br></br>
+                        <br></br>
+                        また、追加のバウンディングボックスを作成した理由も教えてください。
+                        <br></br>
+                        <br></br>
+                        全てのアノテーションが終了したら、「<strong>次の画像を読み込む</strong>」をクリックして、次の画像にアノテーションを付けてください。 
+                        <br></br>
+                        <br></br>
+                        下の画像は、インターフェースの例です。
+                        <br></br>
+                        <br></br>
+                        <img src = {loading} style = {{maxHeight: '100%', maxWidth: '100%'}}/>
+                        <br></br>
+                        <br></br>   
+                    </h3>
+                </Card.Text>
+                <Card.Title><h1><strong>タスクが完了したかどうかを知るには？</strong></h1></Card.Title>
+                <Card.Text>
+                    <h3>
+                        すべてのアノテーション作業が終わると、ポップアップで情報が提示されます。
+                        <br></br>
+                        <br></br>
+                        <img src = {finishPop} style = {{maxHeight: '100%', maxWidth: '100%'}}/>
+                        <br></br>
+                        <br></br>
+                        その後、画面から離れて、クラウドワークスで必要な情報を記入し、提出が完了するのを確認してください。
+                        <br></br>
+                        <br></br>
+                        もしすべてのタスクを完了する前に離れたい場合は、同じ情報（特に、<strong>クラウドワークスのID</strong>）を入力してください。それにより、途中から再開することができます。
+                    </h3>
+                </Card.Text>
+            </div>
+            
+        );
+    }
     render(){
         return(
             <div style={this.props.display?{display: 'block'}:{display: 'none'}}>
@@ -212,35 +292,35 @@ class Intro extends Component{
                         <Col md={11}>
                         <Card style={{ maxWidth: '80%'}} border={'dark'}>
                         <Card.Header  style={{ textAlign: 'left'}}>
-                            <h2><strong>Instruction</strong></h2>
+                            <h2><strong>{this.text['instruction'][this.props.language]}</strong></h2>
                         </Card.Header>
                         <Card.Body text={'dark'}  style={{ textAlign: 'left'}}>
-                            <Card.Title><h1><strong>Task</strong></h1></Card.Title>
-                            {this.taskIntro()}
+                            <Card.Title><h1><strong>{this.text['task'][this.props.language]}</strong></h1></Card.Title>
+                            {this.props.language==='en'? this.taskIntroEn():this.taskIntroJp()}
                         </Card.Body>
                         <br></br>
-                        <span style={{textAlign: 'left'}}><h3>Name:</h3></span>
+                        <span style={{textAlign: 'left'}}><h3>{this.text['name'][this.props.language]}</h3></span>
                         <input type="text" id="particpant-name" ref={this.name}/><br/>
-                        <span  style={{ textAlign: 'left'}}><h3>Age (Your age should be from 20 to 70):</h3></span>
+                        <span  style={{ textAlign: 'left'}}><h3>{this.text['age'][this.props.language]}</h3></span>
                         <input type="text" id="particpant-age" ref={this.age}/><br/>
-                        <span  style={{ textAlign: 'left'}}><h3>Gender:</h3></span>
+                        <span  style={{ textAlign: 'left'}}><h3>{this.text['gender'][this.props.language]}</h3></span>
                         <div id ={'gender'} onChange={this.selectGender}>
-                            <input type="radio" value="Male" name="gender" /> Male
-                            <input type="radio" value="Female" name="gender" /> Female
-                            <input type="radio" value="Other" name="gender" /> Prefer not to mention
+                            <input type="radio" value="Male" name="gender" /> {this.text['male'][this.props.language]}
+                            <input type="radio" value="Female" name="gender" /> {this.text['female'][this.props.language]}
+                            <input type="radio" value="Other" name="gender" /> {this.text['not mention'][this.props.language]}
                         </div>
-                        <span  style={{ textAlign: 'left'}}><h3>Nationality:</h3></span>
+                        <span  style={{ textAlign: 'left'}}><h3>{this.text['nationality'][this.props.language]}</h3></span>
                         <input type="text" id="particpant-nationality" ref={this.nationality} /><br/>
-                        <span  style={{ textAlign: 'left'}}><h3>Worker's ID:</h3></span>
+                        <span  style={{ textAlign: 'left'}}><h3>{this.text['workerId'][this.props.language]}</h3></span>
                         <input type="text" id={"particpant-workerid"} ref={this.workerId} /><br/>
                         <br></br>
                         <Card.Text style={{ textAlign: 'left'}}>
-                            <h3>Please answer the following questions:</h3>
+                            <h3>{this.text['bigfiveTitle'][this.props.language]}</h3>
                         </Card.Text>
                         {this.generateBigfive()}
                         <Card.Footer onClick = {this.submit} style={{cursor: 'pointer'}}>
-                            <h2 style={{textAlign: "center"}}>I fully understood the study and want to do this task with my consent.</h2>
-                            <h2 style={{textAlign: "center"}}>(You may back to read the instruction later if you need.)</h2>
+                            <h2 style={{textAlign: "center"}}>{this.text['confirmText0'][this.props.language]}</h2>
+                            <h2 style={{textAlign: "center"}}>{this.text['confirmText1'][this.props.language]}</h2>
                         </Card.Footer>
                         </Card>
                         </Col>
