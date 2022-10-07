@@ -26,7 +26,7 @@ class Toolbar extends Component{
         'labelList': {'en': 'Label List', 'jp': 'ラベルリスト'},
         'manualList': {'en': 'Manual Label', 'jp': '手動ラベル'},
         'deleteManualBbox': {'en': 'Delete selected label', 'jp': '選択したラベルを削除する'},
-        'privacyButton': {'en': 'The above content is <strong>not</strong> privacy-threatening',
+        'privacyButton': {'en': 'The above content is not privacy-threatening',
         'jp': '上記の内容はプライバシーを脅かすものではありません'}};
     }
     toolCallback = (childData) =>{
