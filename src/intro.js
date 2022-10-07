@@ -85,7 +85,7 @@ class Intro extends Component{
         this.gender = e.target.value;
     }
     generateBigfive = () =>{
-        var questions = ['Q1: I see myself as someone who is reserved.',
+        var questions = {'en':['Q1: I see myself as someone who is reserved.',
         'Q2: I see myself as someone who is generally trusting.',
         'Q3: I see myself as someone who tends to be lazy.',
         'Q4: I see myself as someone who is relaxed‚ handles stress well.',
@@ -94,17 +94,30 @@ class Intro extends Component{
         'Q7: I see myself as someone who tends to find fault with others.',
         'Q8: I see myself as someone who does a thorough job.',
         'Q9: I see myself as someone who gets nervous easily.',
-        'Q10: I see myself as someone who has an active imagination.'];
+        'Q10: I see myself as someone who has an active imagination.'],
+        'jp': ['Q1: 私は自分が控えめな人間だと思う。',
+        'Q2: 私は自分が信じやすい人間だと思う。',
+        'Q3: 私は自分が怠けがちな人間だと思う。',
+        'Q4: 私は自分が、ストレスをうまく処理できる、リラックスした人間だと思う。',
+        'Q5: 私は自分が芸術的なことにあまり興味がない人間だと思う。',
+        'Q6:私は自分が社交的な人間だと思う。',
+        'Q7: 私は自分が他人の欠点を見つける傾向がある人間だと思う。',
+        'Q8: 私は自分がきちんと仕事をする人だと思う。',
+        'Q9: 私は自分が緊張しやすい人だと思う。',
+        'Q10: 私は自分が想像力が豊かな人だと思う。']};
+        var answer = {'en': ['Disagree strongly', 'Disagree a little', 'Neither agree or disagree', 
+        'Agree a little', 'Agree strongly'],
+        'jp': ['全く同意しない', 'あまり同意しない', 'どちらでもない', '少しそう思う', 'とてもそう思う']};
 
-        return questions.map((question,i)=>(
+        return questions[this.props.language].map((question,i)=>(
         <div>
             <Card.Text style={{ textAlign: 'left'}}><h4>{question}</h4></Card.Text>
             <div defaultValue={'0'} key = {'question-' + String(i)} ref={this.bigfiveRef[i]} className={'radioButton'} onChange={this.getBigfive}>
-                <input style = {{ height: '2em'}}type="radio" value="1" name={'question-' + String(i)} /> Disagree strongly
-                <input type="radio" value="2" name={'question-' + String(i)} /> Disagree a little
-                <input type="radio" value="3" name={'question-' + String(i)} /> Neither agree or disagree
-                <input type="radio" value="4" name={'question-' + String(i)} /> Agree a little
-                <input type="radio" value="5" name={'question-' + String(i)} /> Agree strongly
+                <input type="radio" value="1" name={'question-' + String(i)} /> {answer[this.props.language][0]}
+                <input type="radio" value="2" name={'question-' + String(i)} /> {answer[this.props.language][1]}
+                <input type="radio" value="3" name={'question-' + String(i)} /> {answer[this.props.language][2]}
+                <input type="radio" value="4" name={'question-' + String(i)} /> {answer[this.props.language][3]}
+                <input type="radio" value="5" name={'question-' + String(i)} /> {answer[this.props.language][4]}
             </div>
             <br></br>
         </div>

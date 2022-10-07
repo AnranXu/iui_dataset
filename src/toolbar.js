@@ -228,7 +228,6 @@ class Toolbar extends Component{
         var image_URL = '';
         var label_URL = '';
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
-            var ifFinished = true;
             //upload the annotation first
             text = text.replaceAll("\'", "\"");
             this.task_record = JSON.parse(text); // parse each row as json file
@@ -280,7 +279,7 @@ class Toolbar extends Component{
         
         //list label according to the category
         return this.state.labelList.map((label,i)=>(
-        <div>
+        <div key={'defaultLabelList-' + label}>
             <Container>
 				<Row>
                     <Col md={12}>
@@ -328,14 +327,14 @@ class Toolbar extends Component{
         
         //list label according to the category
         return this.props.manualBboxs.map((bbox,i)=>(
-        <div>
+        <div key={'manualLabelList-' + String(bbox['id'])}>
             <ListGroup.Item action key={'manualList-'+ String(bbox['id'])} id={String(bbox['id'])} onClick={this.chooseManualBbox}>
                 {'Label ' + String(bbox['id'])}
             </ListGroup.Item>
-        <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} className={'manualAnnotationCard'} 
-        id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
-        visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} 
-        clickCnt={this.state.manualLabelClickCnt} stageRef={this.props.stageRef} trRef={this.props.trRef}></ManualAnnotationCard>
+            <ManualAnnotationCard key={'manualAnnotationCard-' + String(bbox['id'])} className={'manualAnnotationCard'} 
+            id = {String(bbox['id'])} manualNum={String(bbox['id'])} 
+            visibleBbox={this.state.curManualBbox} bboxsLength={this.props.manualBboxs.length} 
+            clickCnt={this.state.manualLabelClickCnt} stageRef={this.props.stageRef} trRef={this.props.trRef}></ManualAnnotationCard>
         </div>
         ));
     }
