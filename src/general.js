@@ -35,7 +35,7 @@ class General extends Component{
                             <button onClick= { () => {this.props.toolCallback({page: 'intro'});
                             document.body.scrollTop = document.documentElement.scrollTop = 0;}}>{this.text['back'][this.props.language]}
                             </button>
-                            <Toolbar toolCallback = {this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
+                            <Toolbar testMode={this.props.testMode} toolCallback={this.toolCallback} stageRef={this.state.stageRef} trRef={this.state.trRef}
                             manualMode={this.state.manualMode} manualBboxs={this.state.manualBboxs} language = {this.props.language}
                             addingBbox = {this.state.addingBbox} workerId = {this.props.workerId}/>
                         </Col>

@@ -2,10 +2,11 @@ import $ from "jquery";
 import AWS from 'aws-sdk';
 
 class s3_handler{
-    constructor(language)
+    constructor(language, testMode)
     {
         this.s3 = this.s3_init();
         this.language = language;
+        this.testMode = testMode;
         this.bucketName = 'iui-privacy-dataset';
         this.platform = {'en': 'Prolific/',
         'jp': 'CrowdWorks/'};
@@ -43,7 +44,11 @@ class s3_handler{
     }   
     updateAnns = (image_id, worker_id, anns) => {
         var res = JSON.stringify(anns);
-        var name = this.platform[this.language] + 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
+        var name = '';
+        if(this.testMode)
+            name = 'testMode/' + 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
+        else
+            name = this.platform[this.language] + 'crowdscouringlabel/'+ image_id + '_' + worker_id + '_label.json';
         var textBlob = new Blob([res], {
             type: 'text/plain'
         });
@@ -64,7 +69,11 @@ class s3_handler{
     }   
     updateQuestionnaire = (anws, workerId)=>{
         var res = JSON.stringify(anws);
-        var name = this.platform[this.language] + 'workerInfo/'+ workerId + '.json';
+        var name = '';
+        if(this.testMode)
+            name = 'testMode/' + 'workerInfo/'+ workerId + '.json';
+        else
+            name = this.platform[this.language] + 'workerInfo/'+ workerId + '.json';
         var textBlob = new Blob([res], {
             type: 'text/plain'
         });

@@ -144,14 +144,9 @@ class Toolbar extends Component{
             privacyButton.checked = false;
         }
         this.props.toolCallback({clearManualBbox: true});
-        var s3 = new s3_handler(this.props.language);
+        var s3 = new s3_handler(this.props.language, this.props.testMode);
         s3.updateAnns(this.image_ID, this.props.workerId, anns);
         return true;
-    }
-    updateRecord = () =>{
-        var s3 = new s3_handler(this.props.language);
-        var flag = s3.updateRecord(this.task_record);
-        return flag;
     }
     readURL = (image_URL, label_URL) => {
         // fetch data from amazon S3
@@ -202,9 +197,13 @@ class Toolbar extends Component{
                 this.task_record[task_num]['workerprogress'] += 1;
                 console.log(this.task_record[task_num]);
                 //var ifUpdateRecord = this.updateRecord();
-                var s3_uploader = new s3_handler(this.props.language);
+                var s3_uploader = new s3_handler(this.props.language, this.props.testMode);
                 var res = JSON.stringify(this.task_record);
-                var name = this.platform[this.props.language] + 'task_record.json';
+                var name = '';
+                if(this.props.testMode)
+                name = 'testMode/' + 'task_record.json';
+                else
+                    name = this.platform[this.props.language] + 'task_record.json';
                 var textBlob = new Blob([res], {
                     type: 'text/plain'
                 });
@@ -230,7 +229,11 @@ class Toolbar extends Component{
     }
     getLabel = ()=>{
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
-        var task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
+        var task_record_URL = '';
+        if(this.props.testMode)
+        task_record_URL = prefix+ 'testMode/' + 'task_record.json';
+        else
+            task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
         var image_URL = '';
         var label_URL = '';
         fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
