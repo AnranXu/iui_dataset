@@ -257,7 +257,7 @@ class Toolbar extends Component{
             }
             //create new record and move old record
             else{
-                task_num = this.task_record['cur_progess'];
+                task_num = this.task_record['cur_progress'];
                 if(parseInt(task_num) >= this.task_record['list_len'])
                 {
                     task_num = '0';
@@ -267,7 +267,7 @@ class Toolbar extends Component{
                 this.task_record[task_num]['workerid'] = this.props.workerId;
                 this.task_record[task_num]['workerprogress'] = 0;
                 this.task_record['worker_record'][this.props.workerId]['task_num'] = task_num;
-                this.task_record['cur_progess'] = String(parseInt(this.task_record['cur_progess']) + 1);
+                this.task_record['cur_progress'] = String(parseInt(this.task_record['cur_progress']) + 1);
             }
             if(cur_progress >= 10)
             {

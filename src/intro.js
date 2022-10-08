@@ -18,6 +18,8 @@ class Intro extends Component{
         this.workerId = React.createRef();
         for(var i = 0; i < 10; i++)
             this.bigfiveRef[i] = React.createRef();
+        this.platform = {'en': 'Prolific/',
+            'jp': 'CrowdWorks/'};
         this.text = {'instruction': {'en': 'Instruction', 'jp': '手順'},
         'task': {'en': 'Task', 'jp': '作業'},
         'name': {'en': 'Name:', 'jp': '名前:'},
@@ -87,9 +89,67 @@ class Intro extends Component{
             'workerId': this.workerId.current.value, 'bigfives': this.bigfiveAns};
             var s3 = new s3_handler(this.props.language, this.props.testMode);
             s3.updateQuestionnaire(anws, this.workerId.current.value);
-            this.props.toolCallback({page: 'task', workerId: this.workerId.current.value});
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
-        }  
+            // we need to update a new working record if this is a new worker right after he click it.
+            // or there will be problem of assigning the same worker id after the first image is uploaded.
+            var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
+            var task_record_URL = '';
+            if(this.props.testMode)
+                task_record_URL = prefix+ 'testMode/' + 'task_record.json';
+            else
+                task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
+            console.log(task_record_URL);
+            fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
+                //upload the annotation first
+                text = text.replaceAll("\'", "\"");
+                var task_record = JSON.parse(text); // parse each row as json file
+                console.log(task_record);
+                //if this worker is back to his/her work
+                var task_num = '0';
+                var workerId = this.workerId.current.value;
+                if(!(workerId in task_record['worker_record']))
+                {
+                    task_num = task_record['cur_progress'];
+                    if(parseInt(task_num) >= task_record['list_len'])
+                    {
+                        task_num = '0';
+                    }
+                    console.log(task_num);
+                    task_record['worker_record'][workerId] = {};
+                    task_record['worker_record'][workerId]['progress'] = 0;
+                    task_record[task_num]['workerid'] = workerId;
+                    task_record[task_num]['workerprogress'] = 0;
+                    task_record['worker_record'][workerId]['task_num'] = task_num;
+                    task_record['cur_progress'] = String(parseInt(task_record['cur_progress']) + 1);
+                    console.log(task_record);
+                    var s3_uploader = new s3_handler(this.props.language, this.props.testMode);
+                    var res = JSON.stringify(task_record);
+                    var name = '';
+                    if(this.props.testMode)
+                        name = 'testMode/' + 'task_record.json';
+                    else
+                        name = this.platform[this.props.language] + 'task_record.json';
+                    var textBlob = new Blob([res], {
+                        type: 'text/plain'
+                    });
+                    var upload = s3_uploader.s3.upload({
+                        Bucket: 'iui-privacy-dataset',
+                        Key: name,
+                        Body: textBlob,
+                        ContentType: 'text/plain',
+                        ACL: 'bucket-owner-full-control'
+                    });
+                    var promise = upload.promise();
+                    promise.then(()=>{
+                        this.props.toolCallback({page: 'task', workerId: this.workerId.current.value});
+                        document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    });
+                }
+                else{
+                    this.props.toolCallback({page: 'task', workerId: this.workerId.current.value});
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                }
+            });
+        }
         else{
             alert('Please fill out all questions');
         }

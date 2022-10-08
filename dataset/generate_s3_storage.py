@@ -15,7 +15,7 @@ if __name__ == '__main__':
     # we assign 10 annotation tasks to each worker
     task_per_worker = 10
     # cur_progress: the next task num that should be assign to a new worker
-    task_record = {'cur_progess': '0', 'worker_record': {}, 'list_len': math.ceil(len(img_list) / task_per_worker)}
+    task_record = {'cur_progress': '0', 'worker_record': {}, 'list_len': math.ceil(len(img_list) / task_per_worker)}
     for i in range(math.ceil(len(img_list) / task_per_worker)):
         task_record[str(i)] = {'workerid': '', 'workerprogress': 0, 'img_list': []}
         for j in range(task_per_worker):
