@@ -272,6 +272,8 @@ class Toolbar extends Component{
             if(cur_progress >= 10)
             {
                 alert(this.text['finishPopUp'][this.props.language]);
+                if(this.props.language === 'en')
+                    window.location.replace('https://app.prolific.co/submissions/complete?cc=C17L3MGU');
                 return false;
             }
             this.image_ID = this.task_record[task_num]['img_list'][cur_progress];
