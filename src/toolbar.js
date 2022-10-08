@@ -251,7 +251,7 @@ class Toolbar extends Component{
             //create new record and move old record
             else{
                 task_num = this.task_record['cur_progess'];
-                if(ParseInt(task_num) >= this.task_record['list_len'])
+                if(parseInt(task_num) >= this.task_record['list_len'])
                 {
                     task_num = '0';
                 }
