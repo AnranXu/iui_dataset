@@ -231,7 +231,7 @@ class Toolbar extends Component{
         var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
         var task_record_URL = '';
         if(this.props.testMode)
-        task_record_URL = prefix+ 'testMode/' + 'task_record.json';
+            task_record_URL = prefix+ 'testMode/' + 'task_record.json';
         else
             task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
         var image_URL = '';
