@@ -201,7 +201,7 @@ class Toolbar extends Component{
                 var res = JSON.stringify(this.task_record);
                 var name = '';
                 if(this.props.testMode)
-                name = 'testMode/' + 'task_record.json';
+                    name = 'testMode/' + 'task_record.json';
                 else
                     name = this.platform[this.props.language] + 'task_record.json';
                 var textBlob = new Blob([res], {
