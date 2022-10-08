@@ -27,7 +27,8 @@ class Toolbar extends Component{
         'manualList': {'en': 'Manual Label', 'jp': '手動ラベル'},
         'deleteManualBbox': {'en': 'Delete selected label', 'jp': '選択したラベルを削除する'},
         'privacyButton': {'en': 'The above content is not privacy-threatening',
-        'jp': '上記の内容はプライバシーを脅かすものではありません'}};
+        'jp': '上記の内容はプライバシーを脅かすものではありません'},
+        'finishPopUp': {'en':'You have finished your task, thank you!', 'jp': 'タスクは完了です、ありがとうございました'}};
     }
     toolCallback = (childData) =>{
         console.log(childData);
@@ -57,7 +58,10 @@ class Toolbar extends Component{
                 ifFinished = false;
             if(!ifFinished)
             {
-                alert('Please input your answer in default label ' + category);
+                if(this.props.language === 'en')
+                    alert('Please input your answer in default label ' + category);
+                else if(this.props.language === 'jp')
+                    alert('ラベル' + category + 'に答えを入力してください。');
                 if(this.state.curCat !== category)
                     document.getElementById(category).click();
                 return false;
@@ -80,7 +84,10 @@ class Toolbar extends Component{
                 ifFinished = false;
             if(!ifFinished)
             {
-                alert('Please input your answer in manual label ' + id);
+                if(this.props.language === 'en')
+                    alert('Please input your answer in manual label ' + id);
+                else if(this.props.language === 'jp')
+                    alert('手動ラベル' + id + 'に回答を入力してください。');
                 if(this.state.curManualBbox !== String(id))
                     document.getElementById(id).click();
                 return false;
@@ -264,7 +271,7 @@ class Toolbar extends Component{
             }
             if(cur_progress >= 10)
             {
-                alert('You have finished your task, thank you!');
+                alert(this.text['finishPopUp'][this.props.language]);
                 return false;
             }
             this.image_ID = this.task_record[task_num]['img_list'][cur_progress];

@@ -216,8 +216,8 @@ class Intro extends Component{
         );
     }
     taskIntroJp = (e) =>{
-        var loading = require('./img/demo_en.png');
-        var finishPop = require('./img/finish_en.png');
+        var loading = require('./img/demo_jp.png');
+        var finishPop = require('./img/finish_jp.png');
         return(
             <div>
                 <Card.Text text={'dark'}>
@@ -278,6 +278,24 @@ class Intro extends Component{
                         もしすべてのタスクを完了する前に離れたい場合は、同じ情報（特に、<strong>クラウドワークスのID</strong>）を入力してください。それにより、途中から再開することができます。
                     </h3>
                 </Card.Text>
+                <Card.Title><h1><strong>追記</strong></h1></Card.Title>
+                <Card.Text>
+                    <h3>
+                    データ形式の制約により、対象物のラベルは英語で表記されています。
+                    </h3>
+                    <br></br>
+                    <br></br>
+                    <h3>
+                    枠囲みの中に書いてあることがわからない場合は、<a href="https://www.deepl.com/translator" rel="noreferrer">
+                    https://www.deepl.com/translator</a>で翻訳して意味を調べてください。
+                    </h3>
+                    <br></br>
+                    <br></br>
+                    <h3>
+                    お手数をおかけして申し訳ございません。
+                    </h3>
+                </Card.Text>
+
             </div>
             
         );
