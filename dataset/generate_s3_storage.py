@@ -15,9 +15,9 @@ if __name__ == '__main__':
     # we assign 10 annotation tasks to each worker
     task_per_worker = 10
     # cur_progress: the next task num that should be assign to a new worker
-    task_record = {'cur_progess': '0', 'worker_record': {}}
+    task_record = {'cur_progess': '0', 'worker_record': {}, 'list_len': math.ceil(len(img_list) / task_per_worker)}
     for i in range(math.ceil(len(img_list) / task_per_worker)):
-        task_record[str(i)] = {'workerid': '', 'workerprogress': 0, 'list_len': math.ceil(len(img_list) / task_per_worker), 'img_list': []}
+        task_record[str(i)] = {'workerid': '', 'workerprogress': 0, 'img_list': []}
         for j in range(task_per_worker):
             # we delete the .jpg postfix because the interface should also find its label
             if task_per_worker*i+j < len(img_list):
