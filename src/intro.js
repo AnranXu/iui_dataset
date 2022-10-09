@@ -102,7 +102,6 @@ class Intro extends Component{
                 //upload the annotation first
                 text = text.replaceAll("\'", "\"");
                 var task_record = JSON.parse(text); // parse each row as json file
-                console.log(task_record);
                 //if this worker is back to his/her work
                 var task_num = '0';
                 var workerId = this.workerId.current.value;
@@ -113,14 +112,12 @@ class Intro extends Component{
                     {
                         task_num = '0';
                     }
-                    console.log(task_num);
                     task_record['worker_record'][workerId] = {};
                     task_record['worker_record'][workerId]['progress'] = 0;
                     task_record[task_num]['workerid'] = workerId;
                     task_record[task_num]['workerprogress'] = 0;
                     task_record['worker_record'][workerId]['task_num'] = task_num;
                     task_record['cur_progress'] = String(parseInt(task_record['cur_progress']) + 1);
-                    console.log(task_record);
                     var s3_uploader = new s3_handler(this.props.language, this.props.testMode);
                     var res = JSON.stringify(task_record);
                     var name = '';
