@@ -193,38 +193,51 @@ class Toolbar extends Component{
             {
                 ifFinished = this.uploadAnnotation();  
             }
-            console.log(this.first_loading);
+            console.log('first loading: ', this.first_loading);
             resolve(ifFinished);
             // update the record then
         }).then((flag) =>{
             if(!this.first_loading && flag)
             {
-                var task_num = this.task_record['worker_record'][this.props.workerId]['task_num'];
-                this.task_record['worker_record'][this.props.workerId]['progress'] += 1; 
-                this.task_record[task_num]['workerprogress'] += 1;
-                console.log(this.task_record[task_num]);
-                //var ifUpdateRecord = this.updateRecord();
-                var s3_uploader = new s3_handler(this.props.language, this.props.testMode);
-                var res = JSON.stringify(this.task_record);
-                var name = '';
+                //unsync problem here, so we need to fetch the record again and update it immediately
+                var prefix = 'https://iui-privacy-dataset.s3.ap-northeast-1.amazonaws.com/';
+                var task_record_URL = '';
                 if(this.props.testMode)
-                    name = 'testMode/' + 'task_record.json';
+                    task_record_URL = prefix+ 'testMode/' + 'task_record.json';
                 else
-                    name = this.platform[this.props.language] + 'task_record.json';
-                var textBlob = new Blob([res], {
-                    type: 'text/plain'
-                });
-                var upload = s3_uploader.s3.upload({
-                    Bucket: 'iui-privacy-dataset',
-                    Key: name,
-                    Body: textBlob,
-                    ContentType: 'text/plain',
-                    ACL: 'bucket-owner-full-control'
-                });
-                var promise = upload.promise();
-                promise.then(()=>{
-                    this.getLabel();
-                });
+                    task_record_URL = prefix+ this.platform[this.props.language] + 'task_record.json';
+                fetch(task_record_URL).then((res) => res.text()).then( (text) =>{
+                    text = text.replaceAll("\'", "\"");
+                    this.task_record = JSON.parse(text); // parse each row as json file
+                    //if this worker is back to his/her work
+                    var task_num = '0';
+                    var task_num = this.task_record['worker_record'][this.props.workerId]['task_num'];
+                    this.task_record['worker_record'][this.props.workerId]['progress'] += 1; 
+                    this.task_record[task_num]['workerprogress'] += 1;
+                    console.log(this.task_record[task_num]);
+                    //var ifUpdateRecord = this.updateRecord();
+                    var s3_uploader = new s3_handler(this.props.language, this.props.testMode);
+                    var res = JSON.stringify(this.task_record);
+                    var name = '';
+                    if(this.props.testMode)
+                        name = 'testMode/' + 'task_record.json';
+                    else
+                        name = this.platform[this.props.language] + 'task_record.json';
+                    var textBlob = new Blob([res], {
+                        type: 'text/plain'
+                    });
+                    var upload = s3_uploader.s3.upload({
+                        Bucket: 'iui-privacy-dataset',
+                        Key: name,
+                        Body: textBlob,
+                        ContentType: 'text/plain',
+                        ACL: 'bucket-owner-full-control'
+                    });
+                    var promise = upload.promise();
+                    promise.then(()=>{
+                        this.getLabel();
+                    });
+                    });
             }
             else if(this.first_loading && flag)
             {
@@ -252,6 +265,7 @@ class Toolbar extends Component{
             var task_num = '0';
             if(this.props.workerId in this.task_record['worker_record'])
             {
+                console.log('find worker\'s id');
                 cur_progress = this.task_record['worker_record'][this.props.workerId]['progress'];
                 task_num = this.task_record['worker_record'][this.props.workerId]['task_num'];
             }
