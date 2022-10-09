@@ -11,7 +11,8 @@ dataset/OpenImages/data
 dataset/OpenImages/selected_img
 dataset/OpenImages/selected_label
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+results/CrowdWorks/
+results/Prolific/
 # dependencies
 /node_modules
 /.pnp
