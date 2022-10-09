@@ -80,4 +80,7 @@ if __name__ == '__main__':
     analyze = analyzer(platform_name)
     analyze.basic_count()
     print(analyze.default_category)
-    print(analyze.manual_category)
+    print(analyze.manual_category.keys())
+    sorted_category = dict(sorted(analyze.default_category.items(),\
+        key=lambda item: float(item[1]['privacy'])/float(item[1]['num']), reverse=True))
+    print([ [key, value['privacy']/value['num']]for key, value in sorted_category.items()])
