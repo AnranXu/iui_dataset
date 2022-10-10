@@ -21,6 +21,7 @@ class Intro extends Component{
         this.platform = {'en': 'Prolific/',
             'jp': 'CrowdWorks/'};
         this.text = {'instruction': {'en': 'Instruction', 'jp': '手順'},
+        'skipButton': {'en': 'Directly try the task (You are in the test mode now)', 'jp': 'タスクを直接試す（現在、テストモードになっています）'},
         'task': {'en': 'Task', 'jp': '作業'},
         'name': {'en': 'Name:', 'jp': '名前:'},
         'gender': {'en': 'Gender:', 'jp': '性别:'},
@@ -357,6 +358,9 @@ class Intro extends Component{
             
         );
     }
+    getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
     render(){
         return(
             <div style={this.props.display?{display: 'block'}:{display: 'none'}}>
@@ -373,6 +377,16 @@ class Intro extends Component{
                             <Card.Title><h1><strong>{this.text['task'][this.props.language]}</strong></h1></Card.Title>
                             {this.props.language==='en'? this.taskIntroEn():this.taskIntroJp()}
                         </Card.Body>
+                        {/*this button can skip the input procedure in test mode*/}
+                        {   
+                            this.props.testMode? <button onClick={()=>{
+                            var workerid = String(this.getRandomInt(200));
+                            console.log(workerid);
+                            this.props.toolCallback({page: 'task', workerId: 'test' + workerid});
+                            document.body.scrollTop = document.documentElement.scrollTop = 0;
+                            }}>{this.text['skipButton'][this.props.language]}</button>: 
+                            <div></div>
+                        }
                         <br></br>
                         <span style={{textAlign: 'left'}}><h3>{this.text['name'][this.props.language]}</h3></span>
                         <input type="text" id="particpant-name" ref={this.name}/><br/>
