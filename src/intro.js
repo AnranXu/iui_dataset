@@ -234,7 +234,7 @@ class Intro extends Component{
                         If you think this content is not privacy-threatening, please check the 'not privacy' box to <strong>skip the annotation</strong>.
                         <br></br>
                         <br></br>
-                        You may add extra bounding boxes by the button 'Create bounding box' if you find something privacy-threatening but <strong>is not given in the default bounding boxes</strong>. 
+                        You may mark another object by the button 'Create bounding box' if you find something privacy-threatening but <strong>is not given in the default annotations</strong>. 
                         <br></br>
                         <br></br>
                         After you click it, please move your mouse to the image and create a bounding box by mouse down and mouse up.
