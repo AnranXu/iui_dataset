@@ -250,6 +250,7 @@ class analyzer:
             new_text = new_file.read()
             record = json.loads(old_text)
             new_record = json.loads(new_text)
+            # maybe have bugs because the cur_progress can be reset
             record['cur_progress'] = str(record['list_len'] + int(new_record['cur_progress']))
             record['worker_record'] = {**record['worker_record'], **new_record['worker_record']}  
             for i in range(new_record['list_len']):
