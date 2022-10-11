@@ -24,8 +24,18 @@ class analyzer:
             text = f.read()
             self.task_record = json.loads(text)
     
-    def basic_info(self)->None:
+    def basic_info(self, select_bar)->None:
+        record_path = os.path.join(self.platform, 'task_record.json')
+        with open(record_path, encoding='utf-8') as f:
+            text = f.read()
+            record = json.loads(text)
+            list_len = record['list_len']
+            for i in range(list_len):
+                worker_record = record[str(i)]
+                if worker_record['workerprogress'] > select_bar:
+                    self.valid_workers.append(worker_record['workerid'])
         info_paths = os.listdir(os.path.join(self.platform, 'workerInfo'))
+
         for info_path in info_paths:
             # check if nan, nan!=nan
             with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
@@ -33,6 +43,7 @@ class analyzer:
                 info = json.loads(text)
                 if info['workerId'] not in self.valid_workers:
                     print('unvalid worker: ', info['workerId'])
+                    continue
                 if int(info['age']) != int(info['age']):
                     print('wrong age found', info)
                     continue
@@ -126,9 +137,7 @@ class analyzer:
                     worker_record['workerid'] = ''
                     worker_record['workerprogress'] = 0
                     new_record[cur_step] = worker_record
-                    cur_step = str(int(cur_step) + 1)
-                else:
-                    self.valid_workers.append(worker_record['workerid'])
+                    cur_step = str(int(cur_step) + 1)                    
 
             if cur_step != '0' and generate_new_json:
                 new_record['list_len'] = int(cur_step)
@@ -232,14 +241,49 @@ class analyzer:
         print(privacy)
         print(not_privacy)
 
+    def merge_task_json(self)->None:
+        old_record_path = os.path.join(self.platform, 'task_record (original).json')
+        new_record_path = os.path.join(self.platform, 'task_record.json')
+        
+        with open(old_record_path) as old_file, open(new_record_path) as new_file, open('task_record (merged).json', 'w') as w:
+            old_text = old_file.read()
+            new_text = new_file.read()
+            record = json.loads(old_text)
+            new_record = json.loads(new_text)
+            record['cur_progress'] = str(record['list_len'] + int(new_record['cur_progress']))
+            record['worker_record'] = {**record['worker_record'], **new_record['worker_record']}  
+            for i in range(new_record['list_len']):
+                index  = str(i + record['list_len'])
+                record[index] = new_record[str(i)]
+            record['list_len'] += new_record['list_len']
+
+
+    def generate_img_annotation_map(self)->None:
+        #label: the original label from OpenImages or LVIS
+        #annotation: the privacy-oriented annotations from our study
+        img_annotation_map = {}
+        labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
+        labels.append(os.listdir(os.path.join('Prolific', 'crowdscouringlabel')))
+        for label_path in labels:
+            img_name = label_path.split('_')[0]
+            if img_name != '':
+                if img_name not in img_annotation_map.keys():
+                    img_annotation_map[img_name] = []
+                    img_annotation_map[img_name].append(label_path)
+                else:
+                    img_annotation_map[img_name].append(label_path)
+        with open('img_annotation_map.json', 'w') as f:
+            f.write(str(img_annotation_map))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--platform', type=str, default='CrowdWorks')
     opt = parser.parse_args()
     platform_name = opt.platform
     analyze = analyzer(platform_name)
-    analyze.integrity_check(select_bar = 9)
-    analyze.basic_info()
+    #analyze.integrity_check(select_bar = 9)
+    analyze.basic_info(select_bar = 0)
     analyze.basic_count()
     source = 'OpenImages'
     #print(analyze.default_category[source].keys())
