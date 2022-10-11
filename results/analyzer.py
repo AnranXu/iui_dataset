@@ -6,9 +6,11 @@ import csv
 class analyzer:
     def __init__(self, platform) -> None:
         self.platform = platform
+        self.worker_info = {'age': [], 'gender': {'Male': 0, 'Female': 0, 'Other': 0}, 'bigfive': []}
         self.task_record_path = platform + '/' + 'task_record.json'
         self.label_folder = platform + '/' + 'crowdscouringlabel/'
         self.mycat = {'OpenImages': {}, 'LVIS': {}, 'all': {}}
+        self.valid_workers = []
         self.default_category = {'OpenImages': {}, 'LVIS': {}}
         self.manual_category = {'OpenImages': {}, 'LVIS': {}}
         self.privacy_count_by_image = {'OpenImages': 0, 'LVIS': 0}
@@ -21,8 +23,25 @@ class analyzer:
         with open(self.task_record_path, encoding='utf-8') as f:
             text = f.read()
             self.task_record = json.loads(text)
-        
+    
+    def basic_info(self)->None:
+        info_paths = os.listdir(os.path.join(self.platform, 'workerInfo'))
+        for info_path in info_paths:
+            # check if nan, nan!=nan
+            with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
+                text = f.read()
+                info = json.loads(text)
+                if info['workerId'] not in self.valid_workers:
+                    print('unvalid worker: ', info['workerId'])
+                if int(info['age']) != int(info['age']):
+                    print('wrong age found', info)
+                    continue
+                self.worker_info['age'].append(info['age'])
+                self.worker_info['gender'][info['gender']] += 1
+
     def basic_count(self) -> None:
+        ## count each original labels' annotations 
+        ## generate a list the map image_id to its annotations 
         labels = os.listdir(self.label_folder)
         manual_num = 0
         for label in labels:
@@ -68,6 +87,7 @@ class analyzer:
                         'reasonInput': [], 'sharingInput': []}
                     #num += 1
                     self.privacy_count_by_label[source] += 1
+                    manual_num += 1
                     ifPrivacy = True
                     self.manual_category[source][category]['num'] += 1
                     #reason
@@ -89,9 +109,9 @@ class analyzer:
                     self.privacy_count_by_image[source] += 1
                 else:
                     self.nonprivacy_count_by_image[source] += 1
-
+        print('manual num: ', manual_num)
     #check unfinished task and generate a new task_record.json for only unfinished tasks
-    def integrity_check(self, select_bar)->None:
+    def integrity_check(self, select_bar = 0, generate_new_json = False)->None:
         record_path = os.path.join(self.platform, 'task_record.json')
         new_record = {'cur_progress': '0', 'worker_record': {}}
         cur_step = '0'
@@ -102,12 +122,15 @@ class analyzer:
             for i in range(list_len):
                 worker_record = record[str(i)]
                 if worker_record['workerprogress'] <= select_bar:
+                    print(worker_record['workerprogress'])
                     worker_record['workerid'] = ''
                     worker_record['workerprogress'] = 0
                     new_record[cur_step] = worker_record
                     cur_step = str(int(cur_step) + 1)
-            
-            if cur_step != '0':
+                else:
+                    self.valid_workers.append(worker_record['workerid'])
+
+            if cur_step != '0' and generate_new_json:
                 new_record['list_len'] = int(cur_step)
                 with open('task_record.json', 'w') as w:
                     w.write(str(new_record))
@@ -215,6 +238,8 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     platform_name = opt.platform
     analyze = analyzer(platform_name)
+    analyze.integrity_check(select_bar = 9)
+    analyze.basic_info()
     analyze.basic_count()
     source = 'OpenImages'
     #print(analyze.default_category[source].keys())
@@ -226,4 +251,5 @@ if __name__ == '__main__':
     analyze.check_labels_by_mycat()
     print('privacy count by label: ', analyze.privacy_count_by_label)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
-    analyze.integrity_check(select_bar=0)
+    
+    
