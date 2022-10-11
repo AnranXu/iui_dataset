@@ -380,9 +380,7 @@ class Intro extends Component{
                         {/*this button can skip the input procedure in test mode*/}
                         {   
                             this.props.testMode? <button onClick={()=>{
-                            var workerid = String(this.getRandomInt(200));
-                            console.log(workerid);
-                            this.props.toolCallback({page: 'task', workerId: 'test' + workerid});
+                            this.props.toolCallback({page: 'task', workerId: 'test'});
                             document.body.scrollTop = document.documentElement.scrollTop = 0;
                             }}>{this.text['skipButton'][this.props.language]}</button>: 
                             <div></div>

@@ -6,9 +6,11 @@ import csv
 class analyzer:
     def __init__(self, platform) -> None:
         self.platform = platform
+        self.worker_info = {'age': [], 'gender': {'Male': 0, 'Female': 0, 'Other': 0}, 'bigfive': []}
         self.task_record_path = platform + '/' + 'task_record.json'
         self.label_folder = platform + '/' + 'crowdscouringlabel/'
         self.mycat = {'OpenImages': {}, 'LVIS': {}, 'all': {}}
+        self.valid_workers = []
         self.default_category = {'OpenImages': {}, 'LVIS': {}}
         self.manual_category = {'OpenImages': {}, 'LVIS': {}}
         self.privacy_count_by_image = {'OpenImages': 0, 'LVIS': 0}
@@ -21,8 +23,36 @@ class analyzer:
         with open(self.task_record_path, encoding='utf-8') as f:
             text = f.read()
             self.task_record = json.loads(text)
-        
+    
+    def basic_info(self, select_bar)->None:
+        record_path = os.path.join(self.platform, 'task_record.json')
+        with open(record_path, encoding='utf-8') as f:
+            text = f.read()
+            record = json.loads(text)
+            list_len = record['list_len']
+            for i in range(list_len):
+                worker_record = record[str(i)]
+                if worker_record['workerprogress'] > select_bar:
+                    self.valid_workers.append(worker_record['workerid'])
+        info_paths = os.listdir(os.path.join(self.platform, 'workerInfo'))
+
+        for info_path in info_paths:
+            # check if nan, nan!=nan
+            with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
+                text = f.read()
+                info = json.loads(text)
+                if info['workerId'] not in self.valid_workers:
+                    print('unvalid worker: ', info['workerId'])
+                    continue
+                if int(info['age']) != int(info['age']):
+                    print('wrong age found', info)
+                    continue
+                self.worker_info['age'].append(info['age'])
+                self.worker_info['gender'][info['gender']] += 1
+
     def basic_count(self) -> None:
+        ## count each original labels' annotations 
+        ## generate a list the map image_id to its annotations 
         labels = os.listdir(self.label_folder)
         manual_num = 0
         for label in labels:
@@ -68,6 +98,7 @@ class analyzer:
                         'reasonInput': [], 'sharingInput': []}
                     #num += 1
                     self.privacy_count_by_label[source] += 1
+                    manual_num += 1
                     ifPrivacy = True
                     self.manual_category[source][category]['num'] += 1
                     #reason
@@ -89,9 +120,9 @@ class analyzer:
                     self.privacy_count_by_image[source] += 1
                 else:
                     self.nonprivacy_count_by_image[source] += 1
-
+        print('manual num: ', manual_num)
     #check unfinished task and generate a new task_record.json for only unfinished tasks
-    def integrity_check(self, select_bar)->None:
+    def integrity_check(self, select_bar = 0, generate_new_json = False)->None:
         record_path = os.path.join(self.platform, 'task_record.json')
         new_record = {'cur_progress': '0', 'worker_record': {}}
         cur_step = '0'
@@ -102,12 +133,13 @@ class analyzer:
             for i in range(list_len):
                 worker_record = record[str(i)]
                 if worker_record['workerprogress'] <= select_bar:
+                    print(worker_record['workerprogress'])
                     worker_record['workerid'] = ''
                     worker_record['workerprogress'] = 0
                     new_record[cur_step] = worker_record
-                    cur_step = str(int(cur_step) + 1)
-            
-            if cur_step != '0':
+                    cur_step = str(int(cur_step) + 1)                    
+
+            if cur_step != '0' and generate_new_json:
                 new_record['list_len'] = int(cur_step)
                 with open('task_record.json', 'w') as w:
                     w.write(str(new_record))
@@ -209,12 +241,50 @@ class analyzer:
         print(privacy)
         print(not_privacy)
 
+    def merge_task_json(self)->None:
+        old_record_path = os.path.join(self.platform, 'task_record (original).json')
+        new_record_path = os.path.join(self.platform, 'task_record.json')
+        
+        with open(old_record_path) as old_file, open(new_record_path) as new_file, open('task_record (merged).json', 'w') as w:
+            old_text = old_file.read()
+            new_text = new_file.read()
+            record = json.loads(old_text)
+            new_record = json.loads(new_text)
+            # maybe have bugs because the cur_progress can be reset
+            record['cur_progress'] = str(record['list_len'] + int(new_record['cur_progress']))
+            record['worker_record'] = {**record['worker_record'], **new_record['worker_record']}  
+            for i in range(new_record['list_len']):
+                index  = str(i + record['list_len'])
+                record[index] = new_record[str(i)]
+            record['list_len'] += new_record['list_len']
+
+
+    def generate_img_annotation_map(self)->None:
+        #label: the original label from OpenImages or LVIS
+        #annotation: the privacy-oriented annotations from our study
+        img_annotation_map = {}
+        labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
+        labels.append(os.listdir(os.path.join('Prolific', 'crowdscouringlabel')))
+        for label_path in labels:
+            img_name = label_path.split('_')[0]
+            if img_name != '':
+                if img_name not in img_annotation_map.keys():
+                    img_annotation_map[img_name] = []
+                    img_annotation_map[img_name].append(label_path)
+                else:
+                    img_annotation_map[img_name].append(label_path)
+        with open('img_annotation_map.json', 'w') as f:
+            f.write(str(img_annotation_map))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--platform', type=str, default='CrowdWorks')
     opt = parser.parse_args()
     platform_name = opt.platform
     analyze = analyzer(platform_name)
+    #analyze.integrity_check(select_bar = 9)
+    analyze.basic_info(select_bar = 0)
     analyze.basic_count()
     source = 'OpenImages'
     #print(analyze.default_category[source].keys())
@@ -226,4 +296,5 @@ if __name__ == '__main__':
     analyze.check_labels_by_mycat()
     print('privacy count by label: ', analyze.privacy_count_by_label)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
-    analyze.integrity_check(select_bar=0)
+    
+    
