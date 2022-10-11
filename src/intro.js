@@ -28,7 +28,7 @@ class Intro extends Component{
         'male': {'en': 'Male', 'jp': '男性'},
         'female': {'en': 'Female', 'jp': '女性'},
         'not mention': {'en': 'Prefer not to mention', 'jp': '回答しない'},
-        'age': {'en': 'Age (Your age should be from 20 to 70):', 'jp': '年齢（20歳以上70歳未満でお願いします）:'},
+        'age': {'en': 'Age (Your age should be from 20 to 70. Write in Arabic numerals.):', 'jp': '年齢（20歳以上70歳未満でお願いします。アラビア数字で表記する。）:'},
         'nationality': {'en': 'Nationality:', 'jp': '国籍:'},
         'workerId': {'en': 'Worker\'s ID:', 'jp': 'ワーカーズID:'},
         'bigfiveTitle': {'en': 'Please answer the following questions.', 'jp': '以下の質問にお答えください。'},
