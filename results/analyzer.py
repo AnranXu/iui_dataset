@@ -38,7 +38,7 @@ class analyzer:
 
         for info_path in info_paths:
             # check if nan, nan!=nan
-            with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
+            with open(os.path.join(self.platform, 'workerInfo', info_path), encoding='utf-8') as f:
                 text = f.read()
                 info = json.loads(text)
                 if info['workerId'] not in self.valid_workers:
@@ -243,9 +243,9 @@ class analyzer:
 
     def merge_task_json(self)->None:
         old_record_path = os.path.join(self.platform, 'task_record (original).json')
-        new_record_path = os.path.join(self.platform, 'task_record.json')
-        
-        with open(old_record_path) as old_file, open(new_record_path) as new_file, open('task_record (merged).json', 'w') as w:
+        new_record_path = os.path.join(self.platform, 'task_record (new).json')
+        with open(old_record_path, encoding='utf-8') as old_file, open(new_record_path, encoding='utf-8') as new_file,\
+             open('task_record (merged).json', 'w', encoding='utf-8') as w:
             old_text = old_file.read()
             new_text = new_file.read()
             record = json.loads(old_text)
@@ -257,6 +257,7 @@ class analyzer:
                 index  = str(i + record['list_len'])
                 record[index] = new_record[str(i)]
             record['list_len'] += new_record['list_len']
+            w.write(str(record))
 
 
     def generate_img_annotation_map(self)->None:
@@ -264,7 +265,7 @@ class analyzer:
         #annotation: the privacy-oriented annotations from our study
         img_annotation_map = {}
         labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
-        labels.append(os.listdir(os.path.join('Prolific', 'crowdscouringlabel')))
+        labels.extend(os.listdir(os.path.join('Prolific', 'crowdscouringlabel')))
         for label_path in labels:
             img_name = label_path.split('_')[0]
             if img_name != '':
@@ -275,7 +276,12 @@ class analyzer:
                     img_annotation_map[img_name].append(label_path)
         with open('img_annotation_map.json', 'w') as f:
             f.write(str(img_annotation_map))
-
+        with open('img_list', 'w', encoding='utf-8') as f:
+            for i, key in enumerate(img_annotation_map.keys()):
+                if i != len(img_annotation_map.keys()):
+                    f.write(key + '\n')
+                else:
+                    f.write(key)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -283,6 +289,7 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     platform_name = opt.platform
     analyze = analyzer(platform_name)
+    #analyze.merge_task_json()
     #analyze.integrity_check(select_bar = 9)
     analyze.basic_info(select_bar = 0)
     analyze.basic_count()
@@ -294,6 +301,7 @@ if __name__ == '__main__':
     print([ [key, value['privacy']]for key, value in sorted_category.items() if value['num'] >= 5])
     
     analyze.check_labels_by_mycat()
+    analyze.generate_img_annotation_map()
     print('privacy count by label: ', analyze.privacy_count_by_label)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
     
