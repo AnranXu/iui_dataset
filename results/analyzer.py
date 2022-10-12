@@ -298,7 +298,7 @@ if __name__ == '__main__':
     #print(analyze.manual_category[source].keys())
     sorted_category = dict(sorted(analyze.default_category[source].items(),\
         key=lambda item: float(item[1]['privacy'])/float(item[1]['num']), reverse=True))
-    print([ [key, value['privacy']]for key, value in sorted_category.items() if value['num'] >= 5])
+    print([[key, value['privacy']]for key, value in sorted_category.items() if value['num'] >= 5])
     
     analyze.check_labels_by_mycat()
     analyze.generate_img_annotation_map()
