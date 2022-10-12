@@ -264,16 +264,28 @@ class analyzer:
         #label: the original label from OpenImages or LVIS
         #annotation: the privacy-oriented annotations from our study
         img_annotation_map = {}
-        labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
-        labels.extend(os.listdir(os.path.join('Prolific', 'crowdscouringlabel')))
-        for label_path in labels:
+        crowdworks_labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
+        prolific_labels = os.listdir(os.path.join('Prolific', 'crowdscouringlabel'))
+        for label_path in crowdworks_labels:
             img_name = label_path.split('_')[0]
             if img_name != '':
                 if img_name not in img_annotation_map.keys():
-                    img_annotation_map[img_name] = []
-                    img_annotation_map[img_name].append(label_path)
+                    img_annotation_map[img_name] = {}
+                if 'CrowdWorks' not in img_annotation_map[img_name].keys():
+                    img_annotation_map[img_name]['CrowdWorks'] = [label_path]
                 else:
-                    img_annotation_map[img_name].append(label_path)
+                    img_annotation_map[img_name]['CrowdWorks'].append(label_path)
+
+        for label_path in prolific_labels:
+            img_name = label_path.split('_')[0]
+            if img_name != '':
+                if img_name not in img_annotation_map.keys():
+                    img_annotation_map[img_name] = {}
+                if 'Prolific' not in img_annotation_map[img_name].keys():
+                    img_annotation_map[img_name]['Prolific'] = [label_path]
+                else:
+                    img_annotation_map[img_name]['Prolific'].append(label_path)
+
         with open('img_annotation_map.json', 'w') as f:
             f.write(str(img_annotation_map))
         with open('img_list', 'w', encoding='utf-8') as f:
