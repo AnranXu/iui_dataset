@@ -314,7 +314,7 @@ if __name__ == '__main__':
     
     analyze.check_labels_by_mycat()
     analyze.generate_img_annotation_map()
-    print('privacy count by label: ', analyze.privacy_count_by_label)
-    print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
+    print('privacy count by label: ', analyze.privacy_count_by_image)
+    print('nonprivacy count by label: ', analyze.nonprivacy_count_by_image)
     
     
