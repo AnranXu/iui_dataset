@@ -56,7 +56,8 @@ class analyzer:
         labels = os.listdir(self.label_folder)
         manual_num = 0
         for label in labels:
-            with open(self.label_folder + label, encoding='utf-8') as f:
+            print(os.path.join(self.label_folder, label))
+            with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
                 text = f.read()
                 record = json.loads(text)
                 ifPrivacy = False
@@ -331,7 +332,7 @@ if __name__ == '__main__':
     print([[key, value['privacy']]for key, value in sorted_category.items() if value['num'] >= 5])
     
     analyze.check_labels_by_mycat()
-    analyze.generate_img_annotation_map()
+    #analyze.generate_img_annotation_map()
     print('privacy count by label: ', analyze.privacy_count_by_image)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_image)
     
