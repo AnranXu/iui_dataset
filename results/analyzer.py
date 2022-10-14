@@ -38,7 +38,7 @@ class analyzer:
 
         for info_path in info_paths:
             # check if nan, nan!=nan
-            with open(os.path.join(self.platform, 'workerInfo', info_path), encoding='utf-8') as f:
+            with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
                 text = f.read()
                 info = json.loads(text)
                 if info['workerId'] not in self.valid_workers:
@@ -261,7 +261,7 @@ class analyzer:
 
 
     def generate_img_annotation_map(self)->None:
-        #label: the original label from OpenImages or LVIS
+        #label: the original label from OpenImages or LVIS 
         #annotation: the privacy-oriented annotations from our study
         img_annotation_map = {}
         crowdworks_labels = os.listdir(os.path.join('CrowdWorks', 'crowdscouringlabel'))
@@ -285,6 +285,24 @@ class analyzer:
                     img_annotation_map[img_name]['Prolific'] = [label_path]
                 else:
                     img_annotation_map[img_name]['Prolific'].append(label_path)
+        key_to_delete = []
+        for img_name, annotations in img_annotation_map.items():
+            ifPrivacy = False
+            for platform, label_names in annotations.items():
+                for label_name in label_names:
+                    dirname = os.path.join(platform,'crowdscouringlabel')
+                    with open(os.path.join(dirname,label_name)) as f:
+                        text = f.read()
+                        record = json.loads(text)
+                        for key, value in record['defaultAnnotation'].items():
+                            if not record['defaultAnnotation'][key]['ifNoPrivacy']:
+                                ifPrivacy = True
+                        if len(record['manualAnnotation']):
+                            ifPrivacy = True
+            if not ifPrivacy:
+                key_to_delete.append(img_name)
+        for key in key_to_delete:
+            del img_annotation_map[key]
 
         with open('img_annotation_map.json', 'w') as f:
             f.write(str(img_annotation_map))
@@ -302,7 +320,7 @@ if __name__ == '__main__':
     platform_name = opt.platform
     analyze = analyzer(platform_name)
     #analyze.merge_task_json()
-    #analyze.integrity_check(select_bar = 9)
+    #analyze.integrity_check(select_bar = 1, generate_new_json=True)
     analyze.basic_info(select_bar = 0)
     analyze.basic_count()
     source = 'OpenImages'
