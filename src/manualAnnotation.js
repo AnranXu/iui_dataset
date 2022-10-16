@@ -44,7 +44,7 @@ class ManualAnnotationCard extends Component{
         'contentPlaceHolder': {'en': 'Please input here.', 'jp': 'ここにコンテンツを記入してください。'},
         'reasonQuestion': {'en': 'Assuming you want to seek privacy of the photo owner, what kind of information can this content tell?',
         'jp': '写真の所有者のプライバシーを得ようとする場合、このコンテンツからはどのような情報を読み取れますか？'},
-        'informativeQuestion': {'en': 'How imformative do you think about this privacy information for the photo owner?', 
+        'informativeQuestion': {'en': 'How informative do you think about this privacy information for the photo owner?', 
         'jp': 'この写真所有者のプライバシー情報については、どの程度考えていますか？'},
         'placeHolder': {'en': 'Please input here.', 'jp': 'ここに理由を記入してください。'},
         'sharingQuestion': {'en': 'Assuming you are the photo owner, to what extent would you share this content at most?', 
