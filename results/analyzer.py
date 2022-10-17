@@ -11,6 +11,7 @@ class analyzer:
         self.label_folder = platform + '/' + 'crowdscouringlabel/'
         self.mycat = {'OpenImages': {}, 'LVIS': {}, 'all': {}}
         self.valid_workers = []
+        self.valid_images = []
         self.default_category = {'OpenImages': {}, 'LVIS': {}}
         self.manual_category = {'OpenImages': {}, 'LVIS': {}}
         self.privacy_count_by_image = {'OpenImages': 0, 'LVIS': 0}
@@ -20,12 +21,19 @@ class analyzer:
         self.code_openimage_map = {}
         self.openimages_mycat_map = {}
         self.lvis_mycat_map = {}
+        self.reason = np.zeros(5)
+        self.importance = np.zeros(7)
+        self.sharing = np.zeros(5)
         with open(self.task_record_path, encoding='utf-8') as f:
             text = f.read()
             self.task_record = json.loads(text)
+        with open('img_list') as f:
+            self.valid_images = f.read().splitlines() 
     
     def basic_info(self, select_bar)->None:
-        record_path = os.path.join(self.platform, 'task_record.json')
+        record_path = os.path.join(self.platform, 'task_record (original).json')
+        age = {'18-24': 0, '25-34': 0, '35-44': 0, '45-54': 0, '55-64': 0, '65': 0}
+        gender = {'Male': 0, 'Female': 0, 'Other': 0}
         with open(record_path, encoding='utf-8') as f:
             text = f.read()
             record = json.loads(text)
@@ -35,7 +43,7 @@ class analyzer:
                 if worker_record['workerprogress'] > select_bar:
                     self.valid_workers.append(worker_record['workerid'])
         info_paths = os.listdir(os.path.join(self.platform, 'workerInfo'))
-
+        
         for info_path in info_paths:
             # check if nan, nan!=nan
             with open(os.path.join(self.platform, 'workerInfo', info_path)) as f:
@@ -49,13 +57,37 @@ class analyzer:
                     continue
                 self.worker_info['age'].append(info['age'])
                 self.worker_info['gender'][info['gender']] += 1
+                year = int(info['age'])
+                if 18 <= year <= 24:
+                    age['18-24'] += 1
+                elif 25 <= year <= 34:
+                    age['25-34'] += 1
+                elif 35 <= year <= 44:
+                    age['35-44'] += 1
+                elif 45 <= year <= 54:
+                    age['45-54'] += 1
+                elif 55 <= year <= 64:
+                    age['25-34'] += 1
+                elif year >= 65:
+                    age['65'] += 1
+        print('valid worker:', len(self.valid_workers))
+        print(self.worker_info)
+        print(age)
 
     def basic_count(self) -> None:
         ## count each original labels' annotations 
         ## generate a list the map image_id to its annotations 
         labels = os.listdir(self.label_folder)
         manual_num = 0
+        used_image = []
         for label in labels:
+            img_id = label.split('_')[0]
+            if img_id not in self.valid_images:
+                continue
+            if img_id not in used_image:
+                used_image.append(img_id)
+            else:
+                continue
             with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
                 text = f.read()
                 record = json.loads(text)
@@ -78,15 +110,18 @@ class analyzer:
                     #reason
                     reason_value = int(record['defaultAnnotation'][key]['reason']) - 1
                     self.default_category[source][key]['reason'][reason_value] += 1
+                    self.reason[reason_value] += 1
                     # if other reasons
                     if reason_value == 4:
                         self.default_category[source][key]['reasonInput'].append(record['defaultAnnotation'][key]['reasonInput'])
                     # importance
                     importance_value = int(record['defaultAnnotation'][key]['importance']) - 1
                     self.default_category[source][key]['importance'][importance_value] += 1
+                    self.importance[importance_value] += 1
                     # sharing
                     sharing_value = int(record['defaultAnnotation'][key]['sharing']) - 1
                     self.default_category[source][key]['reason'][sharing_value] += 1
+                    self.sharing[sharing_value] += 1
                     # if other sharing
                     if sharing_value == 4:
                         self.default_category[source][key]['sharingInput'].append(record['defaultAnnotation'][key]['sharingInput'])
@@ -104,15 +139,18 @@ class analyzer:
                     #reason
                     reason_value = int(record['manualAnnotation'][key]['reason']) - 1
                     self.manual_category[source][category]['reason'][reason_value] += 1
+                    self.reason[reason_value] += 1
                     # if other reasons
                     if reason_value == 4:
                         self.manual_category[source][category]['reasonInput'].append(record['manualAnnotation'][key]['reasonInput'])
                     # importance
                     importance_value = int(record['manualAnnotation'][key]['importance']) - 1
                     self.manual_category[source][category]['importance'][importance_value] += 1
+                    self.importance[importance_value] += 1
                     # sharing
                     sharing_value = int(record['manualAnnotation'][key]['sharing']) - 1
                     self.manual_category[source][category]['reason'][sharing_value] += 1
+                    self.sharing[sharing_value] += 1
                     # if other sharing
                     if sharing_value == 4:
                         self.manual_category[source][category]['sharingInput'].append(record['manualAnnotation'][key]['sharingInput'])
@@ -319,20 +357,26 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     platform_name = opt.platform
     analyze = analyzer(platform_name)
-    #analyze.merge_task_json()
+    analyze.merge_task_json()
     #analyze.integrity_check(select_bar = 1, generate_new_json=True)
     analyze.basic_info(select_bar = 0)
     analyze.basic_count()
-    source = 'OpenImages'
+    source = 'LVIS'
     #print(analyze.default_category[source].keys())
     #print(analyze.manual_category[source].keys())
     sorted_category = dict(sorted(analyze.default_category[source].items(),\
         key=lambda item: float(item[1]['privacy'])/float(item[1]['num']), reverse=True))
-    print([[key, value['privacy']]for key, value in sorted_category.items() if value['num'] >= 5])
+    privacy_list = [[key, value['privacy']]for key, value in sorted_category.items() if value['privacy'] >= 1]
+    print(len(privacy_list))
     
     analyze.check_labels_by_mycat()
     #analyze.generate_img_annotation_map()
+    print('privacy count by image: ', analyze.privacy_count_by_image)
+    print('nonprivacy count by image: ', analyze.nonprivacy_count_by_image)
     print('privacy count by label: ', analyze.privacy_count_by_label)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
+    print('reason:', analyze.reason)
+    print('importance:', analyze.importance)
+    print('sharing:', analyze.sharing)
     
     
