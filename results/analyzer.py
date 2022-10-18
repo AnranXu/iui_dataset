@@ -273,9 +273,9 @@ class analyzer:
                     privacy['all'] += value['privacy']
                     not_privacy[dataset_name] += value['notPrivacy']
                     not_privacy['all'] += value['notPrivacy']
-        sorted_category = dict(sorted(self.mycat['OpenImages'].items(),\
-        key=lambda item: float(item[1]['privacy'])/float(item[1]['num']), reverse=True))
-        print(sorted_category.keys())
+        sorted_category = dict(sorted(self.mycat['all'].items(),\
+        key=lambda item: float(item[1]['num']), reverse=True))
+        print([ [key, value['privacy'], value['notPrivacy']] for key, value in sorted_category.items()])
         print(privacy)
         print(not_privacy)
 

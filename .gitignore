@@ -14,6 +14,7 @@ dataset/OpenImages/selected_label
 results/CrowdWorks/
 results/Prolific/
 results/Anonymous/
+results/dataset/
 # dependencies
 /node_modules
 /.pnp
