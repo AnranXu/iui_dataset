@@ -3,7 +3,7 @@ import json
 
 if __name__ == '__main__':
     ## we need to make a version for publication that hide worker's id in the file
-    dirname = 'Anonymous'
+    dirname = 'dataset/annotations'
     with open('./img_annotation_map.json') as f:
         text = f.read()
         img_annotation_map = json.loads(text)
@@ -45,9 +45,9 @@ if __name__ == '__main__':
                         worker_info['bigfives'] = {'Extraversion':  0, 'Agreeableness': 0, 'Conscientiousness': 0, 'Neuroticism': 0, 'Openness to Experience': 0}
                         worker_info['bigfives']['Extraversion'] = 6 - int(ori_bigfive[0]) + int(ori_bigfive[5])
                         worker_info['bigfives']['Agreeableness'] = 6 - int(ori_bigfive[6]) + int(ori_bigfive[1])
-                        worker_info['bigfives']['Extraversion'] = 6 - int(ori_bigfive[2]) + int(ori_bigfive[7])
-                        worker_info['bigfives']['Extraversion'] = 6 - int(ori_bigfive[3]) + int(ori_bigfive[8])
-                        worker_info['bigfives']['Extraversion'] = 6 - int(ori_bigfive[4]) + int(ori_bigfive[9])
+                        worker_info['bigfives']['Conscientiousness'] = 6 - int(ori_bigfive[2]) + int(ori_bigfive[7])
+                        worker_info['bigfives']['Neuroticism'] = 6 - int(ori_bigfive[3]) + int(ori_bigfive[8])
+                        worker_info['bigfives']['Openness to Experience'] = 6 - int(ori_bigfive[4]) + int(ori_bigfive[9])
                         del worker_info['name']
 
                     with open(os.path.join(dirname, platform, 'workerinfo', worker_file), 'w') as w:
