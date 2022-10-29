@@ -16,10 +16,10 @@ if __name__ == '__main__':
                         text = f1.read()
                         label_info = json.loads(text)
                         for key, value in label_info['defaultAnnotation'].items():
-                            label_info['defaultAnnotation'][key]['informativeness'] = label_info['defaultAnnotation'][key]['importance']
+                            label_info['defaultAnnotation'][key]['informativeness'] = int(label_info['defaultAnnotation'][key]['importance'])
                             del label_info['defaultAnnotation'][key]['importance']
                         for key, value in label_info['manualAnnotation'].items():
-                            label_info['manualAnnotation'][key]['informativeness'] = label_info['manualAnnotation'][key]['importance']
+                            label_info['manualAnnotation'][key]['informativeness'] = int(label_info['manualAnnotation'][key]['importance'])
                             del label_info['manualAnnotation'][key]['importance']
                         
 

@@ -24,6 +24,7 @@ class analyzer:
         self.reason = np.zeros(5)
         self.importance = np.zeros(7)
         self.sharing = np.zeros(5)
+        self.unique_content = {}
         with open(self.task_record_path, encoding='utf-8') as f:
             text = f.read()
             self.task_record = json.loads(text)
@@ -32,8 +33,11 @@ class analyzer:
     
     def basic_info(self, select_bar)->None:
         record_path = os.path.join(self.platform, 'task_record (original).json')
-        age = {'18-24': 0, '25-34': 0, '35-44': 0, '45-54': 0, '55-64': 0, '65': 0}
-        gender = {'Male': 0, 'Female': 0, 'Other': 0}
+        age = {'18-24': {'Male': 0, 'Female': 0, 'Other': 0}, 
+        '25-34': {'Male': 0, 'Female': 0, 'Other': 0}, 
+        '35-44': {'Male': 0, 'Female': 0, 'Other': 0}, 
+        '45-54': {'Male': 0, 'Female': 0, 'Other': 0}, 
+        '55': {'Male': 0, 'Female': 0, 'Other': 0}}
         with open(record_path, encoding='utf-8') as f:
             text = f.read()
             record = json.loads(text)
@@ -55,21 +59,17 @@ class analyzer:
                 if int(info['age']) != int(info['age']):
                     print('wrong age found', info)
                     continue
-                self.worker_info['age'].append(info['age'])
-                self.worker_info['gender'][info['gender']] += 1
                 year = int(info['age'])
                 if 18 <= year <= 24:
-                    age['18-24'] += 1
+                    age['18-24'][info['gender']] += 1
                 elif 25 <= year <= 34:
-                    age['25-34'] += 1
+                    age['25-34'][info['gender']] += 1
                 elif 35 <= year <= 44:
-                    age['35-44'] += 1
+                    age['35-44'][info['gender']] += 1
                 elif 45 <= year <= 54:
-                    age['45-54'] += 1
-                elif 55 <= year <= 64:
-                    age['25-34'] += 1
-                elif year >= 65:
-                    age['65'] += 1
+                    age['45-54'][info['gender']] += 1
+                elif 55 <= year:
+                    age['55'][info['gender']] += 1
         print('valid worker:', len(self.valid_workers))
         print(self.worker_info)
         print(age)
@@ -82,12 +82,12 @@ class analyzer:
         used_image = []
         for label in labels:
             img_id = label.split('_')[0]
-            if img_id not in self.valid_images:
+            '''if img_id not in self.valid_images:
                 continue
             if img_id not in used_image:
                 used_image.append(img_id)
             else:
-                continue
+                continue'''
             with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
                 text = f.read()
                 record = json.loads(text)
@@ -104,6 +104,11 @@ class analyzer:
                         self.default_category[source][key]['notPrivacy'] += 1
                         self.nonprivacy_count_by_label[source] += 1
                         continue
+                    if img_id not in self.unique_content.keys():
+                        self.unique_content[img_id] = {'keys': [], 'count': 0}
+                    if key not in self.unique_content[img_id]['keys']:
+                        self.unique_content[img_id]['keys'].append(key) 
+                        self.unique_content[img_id]['count'] += 1
                     self.privacy_count_by_label[source] += 1
                     self.default_category[source][key]['privacy'] += 1
                     ifPrivacy = True
@@ -132,6 +137,9 @@ class analyzer:
                         self.manual_category[source][category] = {'num': 0, 'reason': np.zeros(5), 'importance': np.zeros(7), 'sharing': np.zeros(5), 
                         'reasonInput': [], 'sharingInput': []}
                     #num += 1
+                    if img_id not in self.unique_content.keys():
+                        self.unique_content[img_id] = {'keys': [], 'count': 0}
+                    self.unique_content[img_id]['count'] += 1
                     self.privacy_count_by_label[source] += 1
                     manual_num += 1
                     ifPrivacy = True
@@ -158,7 +166,101 @@ class analyzer:
                     self.privacy_count_by_image[source] += 1
                 else:
                     self.nonprivacy_count_by_image[source] += 1
+        self.label_folder = 'Prolific' + '/' + 'crowdscouringlabel/'
+        labels = os.listdir(self.label_folder)
+        manual_num = 0
+        used_image = []
+        for label in labels:
+            img_id = label.split('_')[0]
+            '''if img_id not in self.valid_images:
+                continue
+            if img_id not in used_image:
+                used_image.append(img_id)
+            else:
+                continue'''
+            with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
+                text = f.read()
+                record = json.loads(text)
+                ifPrivacy = False
+                source  = record['source']
+                if source not in ['OpenImages', 'LVIS']:
+                    continue
+                for key, value in record['defaultAnnotation'].items():
+                    if key not in self.default_category[source].keys():
+                        self.default_category[source][key] = {'reason': np.zeros(5), 'importance': np.zeros(7), 'sharing': np.zeros(5), 
+                        'reasonInput': [], 'sharingInput': [], 'notPrivacy': 0, 'privacy': 0, 'num': 0}
+                    self.default_category[source][key]['num'] += 1
+                    if record['defaultAnnotation'][key]['ifNoPrivacy']:
+                        self.default_category[source][key]['notPrivacy'] += 1
+                        self.nonprivacy_count_by_label[source] += 1
+                        continue
+                    if img_id not in self.unique_content.keys():
+                        self.unique_content[img_id] = {'keys': [], 'count': 0}
+                    if key not in self.unique_content[img_id]['keys']:
+                        self.unique_content[img_id]['keys'].append(key) 
+                        self.unique_content[img_id]['count'] += 1
+                    self.privacy_count_by_label[source] += 1
+                    self.default_category[source][key]['privacy'] += 1
+                    ifPrivacy = True
+                    #reason
+                    reason_value = int(record['defaultAnnotation'][key]['reason']) - 1
+                    self.default_category[source][key]['reason'][reason_value] += 1
+                    self.reason[reason_value] += 1
+                    # if other reasons
+                    if reason_value == 4:
+                        self.default_category[source][key]['reasonInput'].append(record['defaultAnnotation'][key]['reasonInput'])
+                    # importance
+                    importance_value = int(record['defaultAnnotation'][key]['importance']) - 1
+                    self.default_category[source][key]['importance'][importance_value] += 1
+                    self.importance[importance_value] += 1
+                    # sharing
+                    sharing_value = int(record['defaultAnnotation'][key]['sharing']) - 1
+                    self.default_category[source][key]['reason'][sharing_value] += 1
+                    self.sharing[sharing_value] += 1
+                    # if other sharing
+                    if sharing_value == 4:
+                        self.default_category[source][key]['sharingInput'].append(record['defaultAnnotation'][key]['sharingInput'])
+
+                for key, value in record['manualAnnotation'].items():
+                    category = record['manualAnnotation'][key]['category']
+                    if category not in self.manual_category[source].keys():
+                        self.manual_category[source][category] = {'num': 0, 'reason': np.zeros(5), 'importance': np.zeros(7), 'sharing': np.zeros(5), 
+                        'reasonInput': [], 'sharingInput': []}
+                    #num += 1
+                    if img_id not in self.unique_content.keys():
+                        self.unique_content[img_id] = {'keys': [], 'count': 0}
+                    self.unique_content[img_id]['count'] += 1
+                    self.privacy_count_by_label[source] += 1
+                    manual_num += 1
+                    ifPrivacy = True
+                    self.manual_category[source][category]['num'] += 1
+                    #reason
+                    reason_value = int(record['manualAnnotation'][key]['reason']) - 1
+                    self.manual_category[source][category]['reason'][reason_value] += 1
+                    self.reason[reason_value] += 1
+                    # if other reasons
+                    if reason_value == 4:
+                        self.manual_category[source][category]['reasonInput'].append(record['manualAnnotation'][key]['reasonInput'])
+                    # importance
+                    importance_value = int(record['manualAnnotation'][key]['importance']) - 1
+                    self.manual_category[source][category]['importance'][importance_value] += 1
+                    self.importance[importance_value] += 1
+                    # sharing
+                    sharing_value = int(record['manualAnnotation'][key]['sharing']) - 1
+                    self.manual_category[source][category]['reason'][sharing_value] += 1
+                    self.sharing[sharing_value] += 1
+                    # if other sharing
+                    if sharing_value == 4:
+                        self.manual_category[source][category]['sharingInput'].append(record['manualAnnotation'][key]['sharingInput'])
+                if ifPrivacy:
+                    self.privacy_count_by_image[source] += 1
+                else:
+                    self.nonprivacy_count_by_image[source] += 1
+        tot = 0
+        for value in self.unique_content.values():
+            tot += value['count']
         print('manual num: ', manual_num)
+        print('unique number: ', tot)
     #check unfinished task and generate a new task_record.json for only unfinished tasks
     def integrity_check(self, select_bar = 0, generate_new_json = False)->None:
         record_path = os.path.join(self.platform, 'task_record.json')
@@ -276,8 +378,8 @@ class analyzer:
         sorted_category = dict(sorted(self.mycat['all'].items(),\
         key=lambda item: float(item[1]['num']), reverse=True))
         print([ [key, value['privacy'], value['notPrivacy']] for key, value in sorted_category.items()])
-        print(privacy)
-        print(not_privacy)
+        print('my cat privacy: ', privacy)
+        print('my cat no privacy: ', not_privacy)
 
     def merge_task_json(self)->None:
         old_record_path = os.path.join(self.platform, 'task_record (original).json')
@@ -367,7 +469,7 @@ if __name__ == '__main__':
     sorted_category = dict(sorted(analyze.default_category[source].items(),\
         key=lambda item: float(item[1]['privacy'])/float(item[1]['num']), reverse=True))
     privacy_list = [[key, value['privacy']]for key, value in sorted_category.items() if value['privacy'] >= 1]
-    print(len(privacy_list))
+    print('len of privacy_list: ', len(privacy_list))
     
     analyze.check_labels_by_mycat()
     #analyze.generate_img_annotation_map()
