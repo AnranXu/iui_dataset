@@ -82,12 +82,12 @@ class analyzer:
         used_image = []
         for label in labels:
             img_id = label.split('_')[0]
-            '''if img_id not in self.valid_images:
+            if img_id not in self.valid_images:
                 continue
             if img_id not in used_image:
                 used_image.append(img_id)
             else:
-                continue'''
+                continue
             with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
                 text = f.read()
                 record = json.loads(text)
@@ -166,18 +166,20 @@ class analyzer:
                     self.privacy_count_by_image[source] += 1
                 else:
                     self.nonprivacy_count_by_image[source] += 1
+        '''
+        #only used for uniqueness for getting double annotations
         self.label_folder = 'Prolific' + '/' + 'crowdscouringlabel/'
         labels = os.listdir(self.label_folder)
         manual_num = 0
         used_image = []
         for label in labels:
             img_id = label.split('_')[0]
-            '''if img_id not in self.valid_images:
+            if img_id not in self.valid_images:
                 continue
             if img_id not in used_image:
                 used_image.append(img_id)
             else:
-                continue'''
+                continue
             with open(os.path.join(self.label_folder, label), encoding='utf-8') as f:
                 text = f.read()
                 record = json.loads(text)
@@ -259,8 +261,9 @@ class analyzer:
         tot = 0
         for value in self.unique_content.values():
             tot += value['count']
+        print('unique number: ', tot)'''
         print('manual num: ', manual_num)
-        print('unique number: ', tot)
+        
     #check unfinished task and generate a new task_record.json for only unfinished tasks
     def integrity_check(self, select_bar = 0, generate_new_json = False)->None:
         record_path = os.path.join(self.platform, 'task_record.json')
@@ -477,8 +480,8 @@ if __name__ == '__main__':
     print('nonprivacy count by image: ', analyze.nonprivacy_count_by_image)
     print('privacy count by label: ', analyze.privacy_count_by_label)
     print('nonprivacy count by label: ', analyze.nonprivacy_count_by_label)
-    print('reason:', analyze.reason)
-    print('importance:', analyze.importance)
-    print('sharing:', analyze.sharing)
+    print('reason:', analyze.reason, np.sum(analyze.reason))
+    print('importance:', analyze.importance/np.sum(analyze.importance))
+    print('sharing:', analyze.sharing/np.sum(analyze.sharing))
     
     
