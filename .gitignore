@@ -15,6 +15,7 @@ results/CrowdWorks/
 results/Prolific/
 results/Anonymous/
 results/dataset/
+results/dataset (old)/
 # dependencies
 /node_modules
 /.pnp

@@ -24,7 +24,7 @@ class DefaultAnnotationCard extends Component{
             7: 'とても情報量が多い'}
         };
         this.marks = { 'en':[
-            {value: 1,label: 'unimformatic'},
+            {value: 1,label: 'uninformative'},
             {value: 2,label: ''},
             {value: 3,label: ''},
             {value: 4,label: 'neutral'},
